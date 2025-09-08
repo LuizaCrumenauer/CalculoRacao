@@ -2,6 +2,8 @@ package br.csi.projeto_calculo_racao.controller;
 
 import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import br.csi.projeto_calculo_racao.service.TutorService;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,8 +21,9 @@ public class TutorController {
         this.service = service;
     }
 
-    @PostMapping("/cadastar")
-    public ResponseEntity<Tutor> cadastrar( @RequestBody Tutor tutor, UriComponentsBuilder uriBuilder) {
+    @PostMapping("/cadastrar")
+    @Transactional
+    public ResponseEntity<Tutor> cadastrar(@RequestBody @Valid Tutor tutor, UriComponentsBuilder uriBuilder) {
         this.service.salvar(tutor);
         URI uri = uriBuilder.path("/tutores/{id}").buildAndExpand(tutor.getId()).toUri();
         return ResponseEntity.created(uri).body(tutor);
@@ -31,7 +34,7 @@ public class TutorController {
         return ResponseEntity.ok(this.service.listarTutores ());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<Tutor> buscar(@PathVariable Long id) {
         Tutor tutor = this.service.getTutor (id);
         return ResponseEntity.ok (tutor);
