@@ -2,6 +2,7 @@ DROP TABLE if EXISTS calculo;
 
 CREATE TABLE calculo (
                          id serial NOT NULL PRIMARY KEY,
+                         uuid UUID DEFAULT gen_random_uuid(),
                          pet_id INT NOT NULL,
                          racao_id INT,
                          data_calculo TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -11,10 +11,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/tutores")
 public class TutorController {
+
     private final TutorService service;
 
     public TutorController(TutorService service) {
@@ -25,7 +27,7 @@ public class TutorController {
     @Transactional
     public ResponseEntity<Tutor> cadastrar(@RequestBody @Valid Tutor tutor, UriComponentsBuilder uriBuilder) {
         this.service.salvar(tutor);
-        URI uri = uriBuilder.path("/tutores/{id}").buildAndExpand(tutor.getId()).toUri();
+        URI uri = uriBuilder.path("/tutores/{uuid}").buildAndExpand(tutor.getUuid ()).toUri();
         return ResponseEntity.created(uri).body(tutor);
     }
 
@@ -34,9 +36,9 @@ public class TutorController {
         return ResponseEntity.ok(this.service.listarTutores ());
     }
 
-    @GetMapping("/buscar/{id}")
-    public ResponseEntity<Tutor> buscar(@PathVariable Long id) {
-        Tutor tutor = this.service.getTutor (id);
+    @GetMapping("/buscar/{uuid}")
+    public ResponseEntity<Tutor> buscar( @PathVariable UUID uuid ) {
+        Tutor tutor = this.service.buscarTutor ( uuid );
         return ResponseEntity.ok (tutor);
     }
 
@@ -46,9 +48,10 @@ public class TutorController {
         return ResponseEntity.ok (tutor);
     }
 
-    @DeleteMapping("/excluir/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        this.service.excluir (id);
+    @DeleteMapping("/excluir/{uuid}")
+    @Transactional
+    public ResponseEntity<Void> excluir(@PathVariable UUID uuid) {
+        this.service.excluir (uuid);
         return ResponseEntity.noContent().build();
     }
 }

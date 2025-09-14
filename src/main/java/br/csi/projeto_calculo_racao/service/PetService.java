@@ -7,6 +7,7 @@ import br.csi.projeto_calculo_racao.model.tutor.TutorRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PetService {
@@ -19,8 +20,8 @@ public class PetService {
         this.tutorRepository = tutorRepository;
     }
 
-    public void cadastar(Pet pet, Long tutorId) {
-        Tutor tutor = tutorRepository.findById(tutorId).orElseThrow( () -> new RuntimeException ("Tutor não encontrado"));
+    public void cadastar(Pet pet, UUID uuidTutor) {
+        Tutor tutor = tutorRepository.findByUuid ( uuidTutor ).orElseThrow( () -> new RuntimeException ("Tutor não encontrado"));
         pet.setTutor(tutor);
         this.petRepository.save(pet);
     }
@@ -29,23 +30,30 @@ public class PetService {
         return petRepository.findAll();
     }
 
-    public Pet buscarPetPorId(Long id) {
-        return this.petRepository.findById ( id ).orElseThrow (() -> new RuntimeException ("Pet não encontrado"));
+    public Pet buscarPet( UUID uuid ) {
+        return this.petRepository.findByUuid (uuid)
+                .orElseThrow (() -> new RuntimeException ("Pet não encontrado"));
     }
 
-    public void atualizar(Pet pet, Long tutorId) {
-        Tutor novoTutor = this.tutorRepository.findById ( tutorId ).orElseThrow (() -> new RuntimeException ("Tutor não encontrado"));
-        Pet petExistente = this.petRepository.findById(pet.getId()).orElseThrow(() -> new RuntimeException("Pet não encontrado para a atualização."));
+    public void atualizar(Pet petAtualizado, UUID uuidTutor) {
+        Tutor novoTutor = this.tutorRepository.findByUuid ( uuidTutor )
+                .orElseThrow (() -> new RuntimeException ("Tutor não encontrado"));
+        Pet petExistente = this.petRepository.findByUuid (petAtualizado.getUuid ())
+                .orElseThrow(() -> new RuntimeException("Pet não encontrado para a atualização."));
 
-        petExistente.setNome(pet.getNome());
-        petExistente.setEspecie(pet.getEspecie());
-        petExistente.setPorte(pet.getPorte());
-        petExistente.setData_nasc(pet.getData_nasc());
+        petExistente.setNome(petAtualizado.getNome());
+        petExistente.setEspecie(petAtualizado.getEspecie());
+        petExistente.setPorte(petAtualizado.getPorte());
+        petExistente.setData_nasc(petAtualizado.getData_nasc());
+        petExistente.setSexo(petAtualizado.getSexo());
         petExistente.setTutor(novoTutor);
+
+        this.petRepository.save(petExistente);
     }
 
-    public void excluir(Long id) {
-        this.petRepository.deleteById(id);
+    public void excluir(UUID uuid) {
+        Pet pet = this.buscarPet (uuid);
+        this.petRepository.deleteById(pet.getId ());
     }
 
 
