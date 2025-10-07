@@ -1,7 +1,9 @@
 package br.csi.projeto_calculo_racao.model.pet;
 
+import br.csi.projeto_calculo_racao.model.calculo.Calculo;
 import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,6 +16,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -51,4 +54,8 @@ public class Pet {
     @JoinColumn(name = "tutor_id")
     @JsonBackReference
     private Tutor tutor;
+
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Calculo> calculos;
 }
