@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/saude/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class) //primeiro verifica usuario (autenticacaoFilter) para depois bloquear ou nao a requisição
                 .build();
     }
 
