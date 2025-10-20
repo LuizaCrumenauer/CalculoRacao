@@ -41,6 +41,10 @@ public class SecurityConfig {
                         .requestMatchers("/usuarios/tornar-admin/**").hasRole("ADMIN")
                         // Apenas ADMINS podem criar outros ADMINS (cria apenas Usuario)
                         .requestMatchers(HttpMethod.POST, "/usuarios/admin").hasRole("ADMIN")
+                        // Apenas ADMINS podem criar itens de saúde GLOBAIS
+                        .requestMatchers(HttpMethod.POST, "/saude/itens/admin").hasRole("ADMIN")
+                        // Todas as outras rotas de saúde exigem apenas um usuário logado
+                        .requestMatchers("/saude/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class)

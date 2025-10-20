@@ -1,5 +1,7 @@
 package br.csi.projeto_calculo_racao.model.registroSaude;
 
+import br.csi.projeto_calculo_racao.model.tutor.Tutor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,5 +26,10 @@ public class ItemSaude {
     @NotNull(message = "O tipo do item é obrigatório.")
     @Enumerated(EnumType.STRING) // Salva o nome do enum ("VACINA") no banco
     @Column(nullable = false)
-    private TipoSaude tipo;
+    private TipoItem tipo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tutor_id")
+    @JsonIgnore
+    private Tutor tutor; //se nulo item do admin
 }
