@@ -1,10 +1,10 @@
 package br.csi.projeto_calculo_racao.model.tutor;
 
 import br.csi.projeto_calculo_racao.model.pet.Pet;
+import br.csi.projeto_calculo_racao.model.usuario.Usuario;
 import br.csi.projeto_calculo_racao.util.CpfUtils;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -39,9 +39,6 @@ public class Tutor {
     )
     private String cpf;
 
-    @NotBlank(message = "Email é obrigatório")
-    @Email(message = "Email inválido")
-    private String email;
 
     @Pattern(
             regexp = "\\(?\\d{2}\\)?\\s?\\d{4,5}-\\d{4}",
@@ -51,6 +48,10 @@ public class Tutor {
 
     @Embedded
     private Endereco endereco;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("tutor-pets")
+    private Usuario usuario;
 
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

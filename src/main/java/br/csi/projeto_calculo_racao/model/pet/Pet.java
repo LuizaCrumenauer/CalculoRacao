@@ -1,9 +1,12 @@
 package br.csi.projeto_calculo_racao.model.pet;
 
 import br.csi.projeto_calculo_racao.model.calculo.Calculo;
+import br.csi.projeto_calculo_racao.model.registroPeso.RegistroPeso;
+import br.csi.projeto_calculo_racao.model.registroSaude.RegistroSaude;
 import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +19,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,10 +56,19 @@ public class Pet {
 
     @ManyToOne
     @JoinColumn(name = "tutor_id")
-    @JsonBackReference
+    @JsonBackReference("tutor-pets")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Tutor tutor;
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Calculo> calculos;
+
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value="pet-pesos")
+    private List<RegistroPeso> historicoPeso;
+
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference("pet-saude") // Referência para os "filhos" (registros de saúde)
+    private List<RegistroSaude> registrosSaude = new ArrayList<> ();
 }

@@ -8,6 +8,6 @@ import java.util.UUID;
 public interface TutorRepository extends JpaRepository<Tutor, Long> {
     Optional<Tutor> findByUuid( UUID uuid);
     Optional<Tutor> findByCpf(String cpf);
-    Optional<Tutor> findByEmail(String email);
+    Optional<Tutor> findByUsuario_Email ( String email);
 }
 

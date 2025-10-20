@@ -1,11 +1,17 @@
-DROP TABLE if EXISTS tutor;
+CREATE TABLE usuario(
+    id SERIAL PRIMARY KEY,
+    uuid UUID DEFAULT gen_random_uuid(),
+    email VARCHAR (100) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('ADMIN', 'USER'))
+);
 
 CREATE TABLE tutor (
                        id serial NOT NULL primary key,
                        uuid UUID DEFAULT gen_random_uuid(),
+                       usuario_id INT NOT NULL UNIQUE,
                        nome VARCHAR(100) NOT NULL,
                        cpf CHAR(11) NOT NULL unique,
-                       email VARCHAR(100) NOT NULL unique,
                        telefone VARCHAR(20) NOT NULL,
                        cep VARCHAR(9) NOT NULL,
                        logradouro VARCHAR(200) NOT NULL,
@@ -13,6 +19,6 @@ CREATE TABLE tutor (
                        complemento VARCHAR(100),
                        bairro VARCHAR(100) NOT NULL,
                        cidade VARCHAR(100) NOT NULL,
-                       uf CHAR(2) NOT NULL
-
+                       uf CHAR(2) NOT NULL,
+                       FOREIGN KEY (usuario_id) REFERENCES usuario (id) ON DELETE CASCADE
 );

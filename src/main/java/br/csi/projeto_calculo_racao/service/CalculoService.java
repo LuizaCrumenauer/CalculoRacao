@@ -60,7 +60,7 @@ public class CalculoService {
         }
 
         if (dados.idTipoRacao() != null) {
-            // Se o ID foi fornecido, busca a ração no banco
+            // Se o id foi fornecido, busca a ração no banco
             racao = tipoRacaoRepository.findById(dados.idTipoRacao())
                     .orElseThrow(() -> new RuntimeException("Tipo de ração não encontrado"));
             emDaRacao = racao.getEm();

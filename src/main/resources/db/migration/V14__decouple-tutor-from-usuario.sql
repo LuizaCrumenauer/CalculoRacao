@@ -1,0 +1,1 @@
+ALTER TABLE tutor ALTER COLUMN usuario_id DROP NOT NULL;

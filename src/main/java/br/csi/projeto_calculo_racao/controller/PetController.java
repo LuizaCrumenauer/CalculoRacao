@@ -1,5 +1,6 @@
 package br.csi.projeto_calculo_racao.controller;
 
+import br.csi.projeto_calculo_racao.DTO.DebugDtO;
 import br.csi.projeto_calculo_racao.model.pet.Pet;
 import br.csi.projeto_calculo_racao.service.PetService;
 import jakarta.validation.Valid;
@@ -22,7 +23,7 @@ public class PetController {
         this.petService = petService;
     }
 
-    @PostMapping("/cadastrar/{uuidTutor}")
+    @PostMapping( "/cadastrar/{uuidTutor}")
     @Transactional
     public ResponseEntity<Pet> cadastrar( @RequestBody @Valid Pet pet, @PathVariable UUID uuidTutor, UriComponentsBuilder uriBuilder) {
         this.petService.cadastar ( pet, uuidTutor );
@@ -52,5 +53,12 @@ public class PetController {
     public ResponseEntity<Void> excluir(@PathVariable UUID uuid) {
         this.petService.excluir(uuid);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<String> testEndpoint(@RequestBody DebugDtO data) {
+        System.out.println("--- DEBUG ENDPOINT HIT ---");
+        System.out.println("Received message: " + data.message());
+        return ResponseEntity.ok("Test endpoint works! You sent: " + data.message());
     }
 }

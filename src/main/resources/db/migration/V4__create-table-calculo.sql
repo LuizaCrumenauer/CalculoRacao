@@ -19,7 +19,7 @@ CREATE TABLE calculo (
                          resultado DECIMAL(10,2),
                          resultado_min DECIMAL(10,2),
                          resultado_max DECIMAL(10,2),
-                         FOREIGN KEY (pet_id) REFERENCES pet(id),
+                         FOREIGN KEY (pet_id) REFERENCES pet(id) ON DELETE CASCADE,
                          FOREIGN KEY (racao_id) REFERENCES tipo_racao(id)
 );
 
