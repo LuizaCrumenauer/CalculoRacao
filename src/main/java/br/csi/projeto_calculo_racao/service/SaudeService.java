@@ -66,4 +66,9 @@ public class SaudeService {
                 .orElseThrow(() -> new RuntimeException("Pet não encontrado."));
         return pet.getRegistrosSaude();
     }
+
+    //para admin
+    public List<ItemSaude> getAllItens() {
+        return itemSaudeRepository.findAll();
+    }
 }

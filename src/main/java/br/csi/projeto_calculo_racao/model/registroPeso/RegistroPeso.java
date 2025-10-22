@@ -4,6 +4,7 @@ import br.csi.projeto_calculo_racao.model.pet.Pet;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,10 +23,10 @@ public class RegistroPeso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O peso é obrigatório")
+    @NotNull(message = "O peso é obrigatório")
     private BigDecimal peso;
 
-    @NotBlank(message = "A data é obrigatória")
+    @NotNull(message = "A data é obrigatória")
     private LocalDate data_registro;
 
     @ManyToOne

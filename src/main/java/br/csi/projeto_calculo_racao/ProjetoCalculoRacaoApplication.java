@@ -10,7 +10,7 @@ public class ProjetoCalculoRacaoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ProjetoCalculoRacaoApplication.class, args);
 
-		System.out.println("Senha criptografada: " + new BCryptPasswordEncoder ().encode("admin"));
+		//System.out.println("Senha criptografada: " + new BCryptPasswordEncoder ().encode("admin"));
 	}
 
 }

@@ -1,5 +1,7 @@
 package br.csi.projeto_calculo_racao.infra;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,7 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
@@ -47,9 +51,43 @@ public class SecurityConfig {
                         .requestMatchers("/saude/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler())
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                )
                 .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class) //primeiro verifica usuario (autenticacaoFilter) para depois bloquear ou nao a requisição
                 .build();
     }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            var erro = new DadosErroValidacao(
+                    null,
+                    "Usuário não autenticado ou token inválido."
+            );
+            new ObjectMapper ().writeValue(response.getWriter(), erro);
+        };
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.setStatus( HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+
+            var erro = new DadosErroValidacao(
+                    null,
+                    "Acesso negado. Você não tem permissão para acessar este recurso."
+            );
+
+            new ObjectMapper ().writeValue(response.getWriter(), erro);
+        };
+    }
+
+    private record DadosErroValidacao(String campo, String mensagem) {}
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {

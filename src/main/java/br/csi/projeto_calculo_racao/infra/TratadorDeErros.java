@@ -9,10 +9,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.springframework.security.access.AccessDeniedException;
 
 @RestControllerAdvice
 public class TratadorDeErros {
@@ -78,6 +78,13 @@ public class TratadorDeErros {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dadosErro);
     }
 
+    //tratador para erro de acesso negado
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<DadosErroValidacao> tratarErroAcessoNegado(AccessDeniedException ex) {
+        var dadosErro = new DadosErroValidacao(null, "Acesso negado. Você não tem permissão para acessar este recurso.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(dadosErro);
+    }
 
-    private record DadosErroValidacao (String campo, String menssagem) {}
+
+    private record DadosErroValidacao (String campo, String mensagem) {}
 }

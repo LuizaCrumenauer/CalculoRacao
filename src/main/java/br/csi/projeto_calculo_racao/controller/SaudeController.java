@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,11 +31,28 @@ public class SaudeController {
         this.tutorService = tutorService;
     }
 
-    // Endpoint para um Tutor listar os itens de saúde disponíveis (globais + seus)
-    @GetMapping("/itens")
+    // Endpoint para um Tutor listar os itens de saúde disponíveis (globais + seus) e admin ver todos
+    @GetMapping("/itens/listar")
     public ResponseEntity<List<ItemSaude>> getItensDisponiveis() {
-        Tutor tutorLogado = getTutorLogado();
-        List<ItemSaude> itens = saudeService.getItensDisponiveis(tutorLogado);
+        // Pega os dados de autenticação do usuário logado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Verifica se entre as permissões (authorities) do usuário existe a "ROLE_ADMIN"
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .map( GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+
+        List<ItemSaude> itens;
+
+        if (isAdmin) {
+            // Se for ADMIN, chama o busca TUDO.
+            itens = saudeService.getAllItens();
+        } else {
+            // Se for um usuário comum (TUTOR), busca os seus e os do admin
+            Tutor tutorLogado = getTutorLogado();
+            itens = saudeService.getItensDisponiveis(tutorLogado);
+        }
+
         return ResponseEntity.ok(itens);
     }
 
@@ -70,7 +88,7 @@ public class SaudeController {
     // Mtodo utilitário para pegar o tutor logado a partir do token
     private Tutor getTutorLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-        return tutorService.buscarTutorPorEmail(usuario.getEmail());
+        String email = authentication.getName();
+        return tutorService.buscarTutorPorEmail(email);
     }
 }
