@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,6 +70,20 @@ public class TratadorDeErros {
         return ResponseEntity.badRequest().body(dadosErro);
     }
 
+    //erro de login
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<DadosErroValidacao> tratarErroCredenciaisInvalidas( BadCredentialsException ex) {
+        // Retorna 401 Unauthorized com a mensagem personalizada
+        var dadosErro = new DadosErroValidacao(null, "Usuário ou senha inválido.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(dadosErro);
+    }
+
+//    //tratador para erro de acesso negado
+//    @ExceptionHandler(AccessDeniedException.class)
+//    public ResponseEntity<DadosErroValidacao> tratarErroAcessoNegado(AccessDeniedException ex) {
+//        var dadosErro = new DadosErroValidacao(null, "Acesso negado. Você não tem permissão para acessar este recurso.");
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(dadosErro);
+//    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<DadosErroValidacao> tratarErroGenerico(Exception ex) {
@@ -76,13 +91,6 @@ public class TratadorDeErros {
         ex.printStackTrace();
         var dadosErro = new DadosErroValidacao(null, mensagem);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(dadosErro);
-    }
-
-    //tratador para erro de acesso negado
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<DadosErroValidacao> tratarErroAcessoNegado(AccessDeniedException ex) {
-        var dadosErro = new DadosErroValidacao(null, "Acesso negado. Você não tem permissão para acessar este recurso.");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(dadosErro);
     }
 
 

@@ -3,6 +3,7 @@ package br.csi.projeto_calculo_racao.controller;
 import br.csi.projeto_calculo_racao.DTO.DebugDtO;
 import br.csi.projeto_calculo_racao.model.pet.Pet;
 import br.csi.projeto_calculo_racao.service.PetService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/pets")
+@Tag(name = "Pets", description = "Gerenciamento dos animais de estimação")
 public class PetController {
 
     private final PetService petService;

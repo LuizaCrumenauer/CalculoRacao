@@ -8,6 +8,7 @@ import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import br.csi.projeto_calculo_racao.model.usuario.Usuario;
 import br.csi.projeto_calculo_racao.service.SaudeService;
 import br.csi.projeto_calculo_racao.service.TutorService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/saude")
+@Tag(name = "Saúde do Pet", description = "Gerenciamento de itens e registros de saúde")
 public class SaudeController {
 
     private final SaudeService saudeService;

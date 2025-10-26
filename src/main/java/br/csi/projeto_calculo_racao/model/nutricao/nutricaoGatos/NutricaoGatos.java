@@ -21,6 +21,8 @@ public class NutricaoGatos {
 
     private String descricao;
     private String fase_vida;
+    private Long idade_meses_min;
+    private Long idade_meses_max;
     private String nivel_atv;
     private BigDecimal coef_min;
     private BigDecimal coef_max;

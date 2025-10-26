@@ -1,5 +1,6 @@
 package br.csi.projeto_calculo_racao.service;
 
+import br.csi.projeto_calculo_racao.DTO.DadosAtualizacaoPerfilTutorDTO;
 import br.csi.projeto_calculo_racao.DTO.DadosCadastroTutorDTO;
 import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import br.csi.projeto_calculo_racao.model.tutor.TutorRepository;
@@ -8,12 +9,17 @@ import br.csi.projeto_calculo_racao.model.usuario.Usuario;
 import br.csi.projeto_calculo_racao.model.usuario.UsuarioRepository;
 import br.csi.projeto_calculo_racao.util.CpfUtils;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,12 +28,13 @@ public class TutorService {
     private final TutorRepository repository;
     private final UsuarioService usuarioService; // Injetamos o UsuarioService
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public TutorService( TutorRepository repository, UsuarioService usuarioService, UsuarioRepository usuarioRepository ) {
+    public TutorService( TutorRepository repository, UsuarioService usuarioService, UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder ) {
         this.repository = repository;
         this.usuarioService = usuarioService;
         this.usuarioRepository = usuarioRepository;
-
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -81,14 +88,79 @@ public class TutorService {
         this.repository.deleteById(tutor.getId());
     }
 
-    public void atualizar(Tutor tutor) {
+    @Transactional
+    public Tutor atualizarPerfilCompleto( DadosAtualizacaoPerfilTutorDTO dados) { // Verifique o nome do seu DTO
+        // 1. Identifica o tutor logado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailAtual = authentication.getName();
+        Tutor tutorParaAtualizar = this.repository.findByUsuario_Email(emailAtual)
+                .orElseThrow(() -> new NoSuchElementException("Perfil de tutor não encontrado para o usuário logado."));
+        Usuario usuarioAssociado = tutorParaAtualizar.getUsuario();
 
-        Tutor tutorExistente = this.repository.getReferenceById(tutor.getId());
+        // 2. Atualiza os campos do Tutor (nome, telefone, endereço)
+        if (dados.nome() != null && !dados.nome().isBlank()) {
+            tutorParaAtualizar.setNome(dados.nome());
+        }
+        if (dados.telefone() != null) { // Permite telefone em branco? Ajuste se necessário
+            tutorParaAtualizar.setTelefone(dados.telefone());
+        }
+        if (dados.endereco() != null) {
+            // Validação do endereço já deve ocorrer via @Valid no DTO
+            tutorParaAtualizar.setEndereco(dados.endereco());
+        }
 
-        tutorExistente.setNome(tutor.getNome());
-        tutorExistente.setTelefone(tutor.getTelefone());
-        tutorExistente.setEndereco(tutor.getEndereco());
+        // Atualiza CPF (se fornecido e diferente)
+        if (dados.novoCpf() != null && !dados.novoCpf().isBlank()) {
+            String novoCpfLimpo = CpfUtils.limpar(dados.novoCpf());
+            String cpfAtualLimpo = CpfUtils.limpar(tutorParaAtualizar.getCpf());
 
-        this.repository.save(tutorExistente);
+            if (!novoCpfLimpo.equals(cpfAtualLimpo)) {
+                Optional<Tutor> tutorComNovoCpf = repository.findByCpf(novoCpfLimpo);
+                if (tutorComNovoCpf.isPresent() && !tutorComNovoCpf.get().getId().equals(tutorParaAtualizar.getId())) {
+                    throw new DataIntegrityViolationException("O novo CPF fornecido já está cadastrado em outra conta.");
+                }
+                tutorParaAtualizar.setCpf(novoCpfLimpo);
+            }
+        }
+
+        // 3. Atualiza o Email (se fornecido, diferente E senha correta)
+        boolean emailAlterado = false; // Flag para saber se precisamos salvar o usuário explicitamente (embora JPA possa fazer automaticamente)
+
+        // Cenário 1: Novo email foi fornecido, está preenchido E é diferente do email atual.
+        if (dados.novoEmail() != null && !dados.novoEmail().isBlank() && !dados.novoEmail().equalsIgnoreCase(emailAtual)) {
+            // Neste caso, a senha atual é OBRIGATÓRIA
+            if (dados.senhaAtual() == null || dados.senhaAtual().isBlank()) {
+                throw new BadCredentialsException("A senha atual é obrigatória para alterar o email.");
+            }
+            // Verifica se a senha atual está correta
+            if (!passwordEncoder.matches(dados.senhaAtual(), usuarioAssociado.getSenha())) {
+                throw new BadCredentialsException("Senha atual incorreta.");
+            }
+            // Verifica se o novo email já está em uso por OUTRO usuário
+            Optional<Usuario> usuarioComNovoEmail = usuarioRepository.findByEmail(dados.novoEmail());
+            if (usuarioComNovoEmail.isPresent() && !usuarioComNovoEmail.get().getId().equals(usuarioAssociado.getId())) {
+                throw new DataIntegrityViolationException("O novo email fornecido já está em uso por outra conta.");
+            }
+            // Se tudo estiver OK, atualiza o email
+            usuarioAssociado.setEmail(dados.novoEmail());
+            emailAlterado = true; // Marca que o email foi alterado
+        }
+        // Cenário 2: Novo email foi fornecido, mas é IGUAL ao email atual.
+        else if (dados.novoEmail() != null && !dados.novoEmail().isBlank() && dados.novoEmail().equalsIgnoreCase(emailAtual)) {
+            // Não faz nada com o email. A senha atual, se fornecida, é ignorada.
+            System.out.println("Novo email fornecido é igual ao atual. Nenhuma alteração de email realizada.");
+        }
+        // Cenário 3: Novo email NÃO foi fornecido (null ou em branco).
+        else if (dados.novoEmail() == null || dados.novoEmail().isBlank()) {
+            // Não faz nada com o email. A senha atual, se fornecida, é ignorada.
+            System.out.println("Nenhum novo email fornecido. Nenhuma alteração de email realizada.");
+        }
+
+        // 4. Salva as entidades
+        // Salvar o Tutor. O JPA/Hibernate gerenciará o salvamento do Usuario associado
+        // se ele foi modificado dentro da mesma transação (@Transactional).
+        Tutor tutorSalvo = this.repository.save(tutorParaAtualizar);
+
+        return tutorSalvo; // Retorna o tutor com os dados atualizados
     }
 }

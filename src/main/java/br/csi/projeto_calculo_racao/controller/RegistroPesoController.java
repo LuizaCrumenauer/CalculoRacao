@@ -4,6 +4,7 @@ import br.csi.projeto_calculo_racao.DTO.DadosAtualizacaoPesoDTO; // <-- Importe
 import br.csi.projeto_calculo_racao.DTO.DadosRegistroPesoDTO;
 import br.csi.projeto_calculo_racao.model.registroPeso.RegistroPeso;
 import br.csi.projeto_calculo_racao.service.RegistroPesoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/pesos")
+@Tag(name = "Registro de Peso", description = "Gerenciamento do histórico de peso dos pets")
 public class RegistroPesoController {
 
     private final RegistroPesoService service;

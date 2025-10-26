@@ -34,28 +34,29 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        // Permitir o novo endpoint de cadastro de tutor
-                        .requestMatchers(HttpMethod.POST, "/tutores/cadastrar").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // Apenas ADMINS podem listar todos os tutores
+                        // Swagger + API docs
+                        .requestMatchers(
+                                "/v3/api-docs",     // Permite a raiz da documentação OpenAPI
+                                "/v3/api-docs/**",  // Permite os sub-caminhos da documentação (ex: /v3/api-docs/swagger-config)
+                                "/swagger-ui.html", // Permite o arquivo HTML principal do Swagger
+                                "/swagger-ui/**"    // Permite os assets do Swagger (JS, CSS, imagens, etc.)
+                        ).permitAll()                        .requestMatchers(HttpMethod.POST, "/login", "/tutores/cadastrar").permitAll()
+                        // Endpoints de ADMIN
                         .requestMatchers(HttpMethod.GET, "/tutores/listar").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/tutores/perfil").authenticated()
-                        // Protegendo o endpoint de admin
                         .requestMatchers("/usuarios/tornar-admin/**").hasRole("ADMIN")
-                        // Apenas ADMINS podem criar outros ADMINS (cria apenas Usuario)
                         .requestMatchers(HttpMethod.POST, "/usuarios/admin").hasRole("ADMIN")
-                        // Apenas ADMINS podem criar itens de saúde GLOBAIS
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/admin/atualizar").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/saude/itens/admin").hasRole("ADMIN")
-                        // Todas as outras rotas de saúde exigem apenas um usuário logado
+                        // Usuários autenticados
+                        .requestMatchers(HttpMethod.GET, "/tutores/perfil").authenticated()
                         .requestMatchers("/saude/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                        .accessDeniedHandler(accessDeniedHandler())
                         .authenticationEntryPoint(authenticationEntryPoint())
+                        .accessDeniedHandler(accessDeniedHandler())
                 )
-                .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class) //primeiro verifica usuario (autenticacaoFilter) para depois bloquear ou nao a requisição
+                .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
@@ -64,26 +65,18 @@ public class SecurityConfig {
         return (request, response, authException) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
-            var erro = new DadosErroValidacao(
-                    null,
-                    "Usuário não autenticado ou token inválido."
-            );
-            new ObjectMapper ().writeValue(response.getWriter(), erro);
+            var erro = new DadosErroValidacao(null, "Usuário não autenticado ou token inválido.");
+            new ObjectMapper().writeValue(response.getWriter(), erro);
         };
     }
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-            response.setStatus( HttpServletResponse.SC_FORBIDDEN);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json;charset=UTF-8");
-
-            var erro = new DadosErroValidacao(
-                    null,
-                    "Acesso negado. Você não tem permissão para acessar este recurso."
-            );
-
-            new ObjectMapper ().writeValue(response.getWriter(), erro);
+            var erro = new DadosErroValidacao(null, "Acesso negado. Você não tem permissão para acessar este recurso.");
+            new ObjectMapper().writeValue(response.getWriter(), erro);
         };
     }
 
