@@ -8,6 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.ArrayList;
@@ -49,6 +50,18 @@ public class TratadorDeErros {
 
         // Retorna o status 409 Conflict com o objeto de erro no corpo
         return ResponseEntity.status(HttpStatus.CONFLICT).body(dadosErro);
+    }
+
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> tratarConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+        // Itera sobre as violações e cria uma lista de erros
+        var erros = ex.getConstraintViolations().stream()
+                .map(violacao -> new DadosErroValidacao(violacao.getPropertyPath().toString(), violacao.getMessage()))
+                .toList();
+
+        // Retorna 400 Bad Request com a lista de erros
+        return ResponseEntity.badRequest().body(erros);
     }
 
 

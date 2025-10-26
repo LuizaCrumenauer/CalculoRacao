@@ -7,6 +7,11 @@ import jakarta.validation.constraints.Pattern;
 
 public record DadosAtualizacaoPerfilTutorDTO(
         String nome,
+
+        @Pattern(
+                regexp = "^$|\\(?\\d{2}\\)?\\s?\\d{4,5}-\\d{4}",
+                message = "Formato de telefone inválido. Use (XX) XXXXX-XXXX"
+        )
         String telefone,
         @Valid Endereco endereco,
         @Pattern(
@@ -15,5 +20,9 @@ public record DadosAtualizacaoPerfilTutorDTO(
         )
         String novoCpf,
         @Email(message = "Formato de email inválido") String novoEmail,
+
+        String novaSenha,
+
+        // A senha atual é necessária para mudar email OU mudar senha
         String senhaAtual
 ) {}

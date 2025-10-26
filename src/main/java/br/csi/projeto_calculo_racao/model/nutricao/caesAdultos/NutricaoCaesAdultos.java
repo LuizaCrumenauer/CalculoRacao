@@ -1,5 +1,6 @@
 package br.csi.projeto_calculo_racao.model.nutricao.caesAdultos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Tabela de referência para coeficientes nutricionais de cães adultos (NEC), baseada na idade e nível de atividade.")
 public class NutricaoCaesAdultos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

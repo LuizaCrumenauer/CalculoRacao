@@ -2,6 +2,7 @@ package br.csi.projeto_calculo_racao.model.registroSaude;
 
 import br.csi.projeto_calculo_racao.model.pet.Pet;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(description = "Representa um registro de saúde (agrupador), que contém um ou mais itens de saúde aplicados em uma data.")
 public class RegistroSaude {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +26,7 @@ public class RegistroSaude {
     @JsonBackReference("pet-saude") // Referência para o "pai" Pet
     private Pet pet;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_saude_id")
     private ItemSaude itemSaude;
 

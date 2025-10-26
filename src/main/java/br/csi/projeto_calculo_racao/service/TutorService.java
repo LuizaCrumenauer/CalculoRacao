@@ -89,27 +89,29 @@ public class TutorService {
     }
 
     @Transactional
-    public Tutor atualizarPerfilCompleto( DadosAtualizacaoPerfilTutorDTO dados) { // Verifique o nome do seu DTO
-        // 1. Identifica o tutor logado
+    public Tutor atualizarPerfilCompleto(DadosAtualizacaoPerfilTutorDTO dados) {
+        // 1. IDENTIFICA O TUTOR E USUÁRIO LOGADO
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String emailAtual = authentication.getName();
         Tutor tutorParaAtualizar = this.repository.findByUsuario_Email(emailAtual)
                 .orElseThrow(() -> new NoSuchElementException("Perfil de tutor não encontrado para o usuário logado."));
         Usuario usuarioAssociado = tutorParaAtualizar.getUsuario();
 
-        // 2. Atualiza os campos do Tutor (nome, telefone, endereço)
+        // 2. ATUALIZA DADOS SIMPLES (NOME, TELEFONE, ENDEREÇO)
+        // Esses campos não exigem confirmação de senha.
         if (dados.nome() != null && !dados.nome().isBlank()) {
             tutorParaAtualizar.setNome(dados.nome());
         }
-        if (dados.telefone() != null) { // Permite telefone em branco? Ajuste se necessário
+        if (dados.telefone() != null) {
+            // A validação do @Pattern no DTO já tratou o formato
             tutorParaAtualizar.setTelefone(dados.telefone());
         }
         if (dados.endereco() != null) {
-            // Validação do endereço já deve ocorrer via @Valid no DTO
             tutorParaAtualizar.setEndereco(dados.endereco());
         }
 
-        // Atualiza CPF (se fornecido e diferente)
+        // 3. ATUALIZA DADOS DO TUTOR (CPF)
+        // Também não exige senha, mas exige verificação de duplicidade.
         if (dados.novoCpf() != null && !dados.novoCpf().isBlank()) {
             String novoCpfLimpo = CpfUtils.limpar(dados.novoCpf());
             String cpfAtualLimpo = CpfUtils.limpar(tutorParaAtualizar.getCpf());
@@ -123,42 +125,59 @@ public class TutorService {
             }
         }
 
-        // 3. Atualiza o Email (se fornecido, diferente E senha correta)
-        boolean emailAlterado = false; // Flag para saber se precisamos salvar o usuário explicitamente (embora JPA possa fazer automaticamente)
+        // 4. VERIFICA OPERAÇÕES CRÍTICAS (EMAIL E SENHA)
+        // Define o que o usuário está TENTANDO fazer.
+        boolean querMudarEmail = dados.novoEmail() != null && !dados.novoEmail().isBlank() && !dados.novoEmail().equalsIgnoreCase(emailAtual);
+        boolean querMudarSenha = dados.novaSenha() != null && !dados.novaSenha().isBlank();
 
-        // Cenário 1: Novo email foi fornecido, está preenchido E é diferente do email atual.
-        if (dados.novoEmail() != null && !dados.novoEmail().isBlank() && !dados.novoEmail().equalsIgnoreCase(emailAtual)) {
-            // Neste caso, a senha atual é OBRIGATÓRIA
+        // 5. VALIDA A SENHA ATUAL (SE NECESSÁRIO)
+        // Se o usuário quer mudar email OU senha, ele PRECISA fornecer a senha atual correta.
+        if (querMudarEmail || querMudarSenha) {
             if (dados.senhaAtual() == null || dados.senhaAtual().isBlank()) {
-                throw new BadCredentialsException("A senha atual é obrigatória para alterar o email.");
+                throw new BadCredentialsException("A senha atual é obrigatória para alterar o email ou a senha.");
             }
-            // Verifica se a senha atual está correta
+
+            // Verifica se a senha atual fornecida está correta
             if (!passwordEncoder.matches(dados.senhaAtual(), usuarioAssociado.getSenha())) {
                 throw new BadCredentialsException("Senha atual incorreta.");
             }
-            // Verifica se o novo email já está em uso por OUTRO usuário
+
+            // Se chegamos aqui, o usuário está autenticado para realizar operações críticas.
+        }
+
+        // 6. EXECUTA A MUDANÇA DE EMAIL (SE SOLICITADO E VALIDADO)
+        if (querMudarEmail) {
+            // A senha já foi validada no passo 5.
+            // verifica se o NOVO email está disponível.
             Optional<Usuario> usuarioComNovoEmail = usuarioRepository.findByEmail(dados.novoEmail());
+
             if (usuarioComNovoEmail.isPresent() && !usuarioComNovoEmail.get().getId().equals(usuarioAssociado.getId())) {
                 throw new DataIntegrityViolationException("O novo email fornecido já está em uso por outra conta.");
             }
+
             // Se tudo estiver OK, atualiza o email
             usuarioAssociado.setEmail(dados.novoEmail());
-            emailAlterado = true; // Marca que o email foi alterado
-        }
-        // Cenário 2: Novo email foi fornecido, mas é IGUAL ao email atual.
-        else if (dados.novoEmail() != null && !dados.novoEmail().isBlank() && dados.novoEmail().equalsIgnoreCase(emailAtual)) {
-            // Não faz nada com o email. A senha atual, se fornecida, é ignorada.
-            System.out.println("Novo email fornecido é igual ao atual. Nenhuma alteração de email realizada.");
-        }
-        // Cenário 3: Novo email NÃO foi fornecido (null ou em branco).
-        else if (dados.novoEmail() == null || dados.novoEmail().isBlank()) {
-            // Não faz nada com o email. A senha atual, se fornecida, é ignorada.
-            System.out.println("Nenhum novo email fornecido. Nenhuma alteração de email realizada.");
+            System.out.println("Email do usuário atualizado para: " + dados.novoEmail());
         }
 
-        // 4. Salva as entidades
-        // Salvar o Tutor. O JPA/Hibernate gerenciará o salvamento do Usuario associado
-        // se ele foi modificado dentro da mesma transação (@Transactional).
+        // 7. EXECUTA A MUDANÇA DE SENHA (SE SOLICITADO E VALIDADO)
+        if (querMudarSenha) {
+            // A senha já foi validada no passo 5.
+
+            // (Opcional) Você pode adicionar mais validações aqui, como "nova senha não pode ser igual à antiga"
+            if (passwordEncoder.matches(dados.novaSenha(), usuarioAssociado.getSenha())) {
+                // No seu caso, o TratadorDeErros já pega BadCredentials
+                throw new BadCredentialsException("A nova senha não pode ser igual à senha atual.");
+            }
+
+            // Se tudo estiver OK, codifica e salva a nova senha
+            usuarioAssociado.setSenha(passwordEncoder.encode(dados.novaSenha()));
+            System.out.println("Senha do usuário atualizada.");
+        }
+
+        // 8. SALVA AS MUDANÇAS
+        // O @Transactional garante que tanto o 'tutorParaAtualizar' quanto o 'usuarioAssociado'
+        // serão salvos no banco de dados.
         Tutor tutorSalvo = this.repository.save(tutorParaAtualizar);
 
         return tutorSalvo; // Retorna o tutor com os dados atualizados
