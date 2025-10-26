@@ -41,27 +41,20 @@ public class RegistroPesoService {
         return pet.getHistoricoPeso();
     }
 
-    // --- NOVO MÉTODO PARA ATUALIZAR ---
     public RegistroPeso atualizar(Long idRegistro, DadosAtualizacaoPesoDTO dados) {
-        // 1. Busca o registro de peso que queremos editar
         RegistroPeso registroExistente = registroPesoRepository.findById(idRegistro)
                 .orElseThrow(() -> new RuntimeException("Registro de peso não encontrado."));
 
-        // 2. Atualiza os dados do registro com as informações do DTO
         registroExistente.setPeso(dados.peso());
         registroExistente.setData_registro(dados.data_registro());
 
-        // 3. Salva as alterações (o JPA fará um UPDATE)
         return registroPesoRepository.save(registroExistente);
     }
 
-    // --- NOVO MÉTODO PARA EXCLUIR ---
     public void excluir(Long idRegistro) {
-        // 1. Verifica se o registro existe antes de tentar deletar
         if (!registroPesoRepository.existsById(idRegistro)) {
             throw new RuntimeException("Registro de peso não encontrado.");
         }
-        // 2. Exclui o registro
         registroPesoRepository.deleteById(idRegistro);
     }
 }

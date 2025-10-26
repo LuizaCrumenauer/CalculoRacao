@@ -23,7 +23,7 @@ public class RegistroSaude {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_id")
-    @JsonBackReference("pet-saude") // Referência para o "pai" Pet
+    @JsonBackReference("pet-saude") // Referência para opai Pet
     private Pet pet;
 
     @ManyToOne(fetch = FetchType.EAGER)

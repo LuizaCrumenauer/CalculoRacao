@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 import jakarta.validation.constraints.NotBlank;
-// import org.springframework.security.core.userdetails.UserDetails; // Removido pois não está sendo implementado aqui
 import java.util.UUID;
 
 @Entity

@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-@Schema(description = "Registro pontual do peso de um pet") // 2. @Schema da classe
+@Schema(description = "Registro pontual do peso de um pet")
 public class RegistroPeso {
 
     @Id

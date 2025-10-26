@@ -1,14 +1,12 @@
 package br.csi.projeto_calculo_racao.DTO;
 
 import br.csi.projeto_calculo_racao.model.tutor.Endereco;
-import io.swagger.v3.oas.annotations.media.Schema; // 1. Importar
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-// DTO para receber os dados de cadastro do Tutor e do Usuário associado.
-// 2. Adicionar @Schema com exemplo JSON complexo (usando text block)
 @Schema(description = "DTO para cadastro completo de um novo Tutor",
         example = """
                 {
@@ -30,7 +28,7 @@ import jakarta.validation.constraints.NotNull;
                 """)
 public record DadosCadastroTutorDTO(
         @NotBlank(message = "Nome é obrigatório")
-        @Schema(description = "Nome completo do tutor", example = "João da Silva") // 3. Campos simples
+        @Schema(description = "Nome completo do tutor", example = "João da Silva")
         String nome,
 
         @NotBlank(message = "CPF é obrigatório")

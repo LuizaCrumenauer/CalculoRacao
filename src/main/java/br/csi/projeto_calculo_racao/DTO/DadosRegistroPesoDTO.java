@@ -2,11 +2,9 @@ package br.csi.projeto_calculo_racao.DTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Schema(description = "DTO para registrar um novo peso para o pet (a data do registro é definida como a data atual no servidor).",
         example = """

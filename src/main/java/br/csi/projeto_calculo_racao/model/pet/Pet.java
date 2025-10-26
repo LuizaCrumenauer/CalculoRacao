@@ -81,7 +81,7 @@ public class Pet {
     private List<RegistroPeso> historicoPeso;
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("pet-saude") // Referência para os "filhos" (registros de saúde)
+    @JsonManagedReference("pet-saude") // Referência para os filhos (registros de saúde)
     @Schema(description = "Medicamentos/vacinas/etc registrados para o pet")
     private List<RegistroSaude> registrosSaude = new ArrayList<> ();
 }

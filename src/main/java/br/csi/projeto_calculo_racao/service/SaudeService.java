@@ -28,7 +28,6 @@ public class SaudeService {
         this.petRepository = petRepository;
     }
 
-    // Lista os itens disponíveis para um tutor (globais + os dele)
     public List<ItemSaude> getItensDisponiveis(Tutor tutor) {
         return itemSaudeRepository.findGlobalAndTutorItems(tutor.getId());
     }
@@ -39,11 +38,10 @@ public class SaudeService {
         ItemSaude novoItem = new ItemSaude();
         novoItem.setNome(dto.nome());
         novoItem.setTipo(dto.tipo());
-        novoItem.setTutor(tutor); // Se tutor for null, o BD salva como NULO (item global)
+        novoItem.setTutor(tutor);
         return itemSaudeRepository.save(novoItem);
     }
 
-    // Registra a aplicação de um item de saúde em um pet
     @Transactional
     public RegistroSaude registrarSaude(RegistroSaudeDTO dto) {
         Pet pet = petRepository.findByUuid(dto.petUuid())
@@ -60,7 +58,6 @@ public class SaudeService {
         return registroSaudeRepository.save(novoRegistro);
     }
 
-    // Lista os registros de saúde de um pet específico
     public List<RegistroSaude> getRegistrosPorPet(UUID petUuid) {
         Pet pet = petRepository.findByUuid(petUuid)
                 .orElseThrow(() -> new RuntimeException("Pet não encontrado."));

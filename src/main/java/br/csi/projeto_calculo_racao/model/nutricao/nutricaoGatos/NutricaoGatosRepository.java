@@ -8,11 +8,11 @@ import java.util.Optional;
 @Repository
 public interface NutricaoGatosRepository extends JpaRepository<NutricaoGatos, Long> {
 
-    // Query explícita para Gatos Adultos: busca por fase_vida e nivel_atv
+    // Query para Gatos Adultos: busca por fase_vida e nivel_atv
     @Query("SELECT n FROM NutricaoGatos n WHERE n.fase_vida = :faseVida AND n.nivel_atv = :nivelAtv")
     Optional<NutricaoGatos> findAdultoByFaseVidaAndNivelAtv(String faseVida, String nivelAtv);
 
-    // Query para filhotes (já estava correta)
+    // Query para filhotes
     @Query("SELECT n FROM NutricaoGatos n WHERE n.fase_vida = :faseVida AND :idadeMeses BETWEEN n.idade_meses_min AND n.idade_meses_max")
     Optional<NutricaoGatos> findFilhoteByFase_vidaAndIdadeMeses(String faseVida, long idadeMeses);
 

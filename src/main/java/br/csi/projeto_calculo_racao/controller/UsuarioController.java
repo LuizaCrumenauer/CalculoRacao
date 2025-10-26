@@ -67,7 +67,7 @@ public class UsuarioController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Credenciais atualizadas com sucesso",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Usuario.class))), // Retorna o usuário atualizado
+                            schema = @Schema(implementation = Usuario.class))),
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos (ex: email mal formatado, senha nova curta)", content = @Content),
             @ApiResponse(responseCode = "401", description = "Senha atual incorreta", content = @Content),
             @ApiResponse(responseCode = "403", description = "Acesso negado (usuário logado não é admin)", content = @Content),

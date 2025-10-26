@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 
-@OpenAPIDefinition(info = @Info( // Adicione esta anotação
+@OpenAPIDefinition(info = @Info(
 		title = "API Pet Saude",
 		version = "1.0",
 		description = "API para gerenciamento de controle de qualidade de alimentação de pets",

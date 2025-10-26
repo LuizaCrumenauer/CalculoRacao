@@ -36,11 +36,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Swagger + API docs
                         .requestMatchers(
-                                "/v3/api-docs",     // Permite a raiz da documentação OpenAPI
-                                "/v3/api-docs/**",  // Permite os sub-caminhos da documentação (ex: /v3/api-docs/swagger-config)
-                                "/swagger-ui.html", // Permite o arquivo HTML principal do Swagger
-                                "/swagger-ui/**"    // Permite os assets do Swagger (JS, CSS, imagens, etc.)
-                        ).permitAll()                        .requestMatchers(HttpMethod.POST, "/login", "/tutores/cadastrar").permitAll()
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login", "/tutores/cadastrar").permitAll()
                         // Endpoints de ADMIN
                         .requestMatchers(HttpMethod.GET, "/tutores/listar").hasRole("ADMIN")
                         .requestMatchers("/usuarios/tornar-admin/**").hasRole("ADMIN")

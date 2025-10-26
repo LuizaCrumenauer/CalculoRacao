@@ -19,7 +19,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@Schema(description = "Registro de um cálculo de ração realizado") // 2. @Schema da classe
+@Schema(description = "Registro de um cálculo de ração realizado")
 public class Calculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

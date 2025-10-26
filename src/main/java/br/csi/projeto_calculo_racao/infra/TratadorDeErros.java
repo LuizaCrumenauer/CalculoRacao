@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.springframework.security.access.AccessDeniedException;
 
 @RestControllerAdvice
 public class TratadorDeErros {
@@ -48,7 +47,6 @@ public class TratadorDeErros {
 
         var dadosErro = new DadosErroValidacao(campo, mensagem);
 
-        // Retorna o status 409 Conflict com o objeto de erro no corpo
         return ResponseEntity.status(HttpStatus.CONFLICT).body(dadosErro);
     }
 
@@ -60,7 +58,6 @@ public class TratadorDeErros {
                 .map(violacao -> new DadosErroValidacao(violacao.getPropertyPath().toString(), violacao.getMessage()))
                 .toList();
 
-        // Retorna 400 Bad Request com a lista de erros
         return ResponseEntity.badRequest().body(erros);
     }
 
@@ -68,7 +65,6 @@ public class TratadorDeErros {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<DadosErroValidacao> tratarErroFormatoInvalido(HttpMessageNotReadableException ex) {
         String mensagemAmigavel;
-        // a causa raiz da exceção com msg especifica
         String causaOriginal = ex.getMostSpecificCause().getMessage();
 
         if (causaOriginal.contains("LocalDate")) {

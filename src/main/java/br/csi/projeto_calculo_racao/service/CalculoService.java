@@ -52,10 +52,10 @@ public class CalculoService {
         this.registroPesoRepository = registroPesoRepository;
     }
 
-    // Constante para o fator NEM adulto base (110 kcal/kg^0.75)
+    // NEM adulto base (110 kcal/kg^0.75)
     private static final BigDecimal FATOR_NEM_ADULTO_BASE = new BigDecimal("110");
 
-    // Base NEM para gatos adultos ativos (100 kcal/kg^0.67), usada como base para filhotes também
+    //NEM para gatos adultos ativos (100 kcal/kg^0.67), usada como base para filhotes também
     private static final BigDecimal FATOR_NEM_ADULTO_GATO_BASE = new BigDecimal("100");
 
     public Calculo realizarCalculo ( UUID petUuid, DadosCalculoDTO dados ){
@@ -67,21 +67,18 @@ public class CalculoService {
         try {
             RegistroPeso novoRegistroPeso = new RegistroPeso();
             novoRegistroPeso.setPet(pet);
-            novoRegistroPeso.setPeso(dados.pesoAtual()); // Usa o peso do DTO
-            novoRegistroPeso.setData_registro(LocalDate.now()); // Usa a data atual
-            registroPesoRepository.save(novoRegistroPeso); // Salva no banco
+            novoRegistroPeso.setPeso(dados.pesoAtual());
+            novoRegistroPeso.setData_registro(LocalDate.now());
+            registroPesoRepository.save(novoRegistroPeso);
             System.out.println("Registro de peso salvo automaticamente para o pet: " + pet.getNome());
         } catch (Exception e) {
-            // Logar o erro é importante para depuração, mas não impede o cálculo principal
             System.err.println("Erro ao salvar registro de peso automático: " + e.getMessage());
-            // Considerar usar um logger mais robusto aqui (SLF4J, Logback) em um projeto real
         }
 
-        // 2. Lógica para determinar a ração e o valor de EM
+        // lógica para determinar a ração e o valor de EM
         TipoRacao racao = null;
         BigDecimal emDaRacao;
 
-        // Validação de entrada
         if (dados.idTipoRacao() != null && dados.emManual() != null) {
             throw new IllegalArgumentException("Forneça o tipo de ração OU o valor de EM manual, não ambos.");
         }
@@ -100,11 +97,6 @@ public class CalculoService {
         } else {
             throw new IllegalArgumentException("É obrigatório fornecer o tipo de ração ou o valor de EM manual.");
         }
-
-
-        System.out.println("----------- DEBUG DA IDADE -----------");
-        System.out.println("Data de Nascimento do Pet: " + pet.getData_nasc());
-        System.out.println("Data Atual (LocalDate.now()): " + LocalDate.now());
 
         //calcular a idade do pet em anos e meses
         Period idade = Period.between ( pet.getData_nasc (), LocalDate.now () );
@@ -135,7 +127,7 @@ public class CalculoService {
         } else if (pet.getEspecie() == Especie.GATO) {
             return calcularParaGato(calculo, anos, idadeTotalEmMeses);
         }
-        // Se chegou aqui, algo deu errado (ex: espécie não suportada ou TD não implementado)
+        // pode ter dado erro se chegar aqui (ex: espécie não suportada ou TD não implementado)
         throw new UnsupportedOperationException("Cálculo para esta espécie/fase ainda não implementado.");
 
     }
@@ -177,46 +169,44 @@ public class CalculoService {
 
     private Calculo calcularParaCaoFilhote(Calculo calculo, long idadeTotalEmMeses) {
 
-        // 1. Buscar o fator de correção na tabela nutricao_caes_filhotes
-        String porteAdultoStr = calculo.getPet().getPorte().name(); // Converte Enum Porte para String (ex: "MEDIO")
+        // fator de correção na tabela nutricao_caes_filhotes
+        String porteAdultoStr = calculo.getPet().getPorte().name(); // Enum Porte para String
 
         NutricaoCaesFilhotes nutricaoFilhote = nutricaoCaesFilhotesRepository
                 .findFatorCorrecao(porteAdultoStr, idadeTotalEmMeses)
                 .orElseThrow(() -> new RuntimeException("Não foram encontrados fatores de correção para o porte e idade deste filhote."));
 
         BigDecimal fatorCorrecao = nutricaoFilhote.getFator_correcao();
-        // Guardar o fator no cálculo (opcional, mas bom para histórico)
-        calculo.setFator_correcao(fatorCorrecao); // Adicione o campo se quiser
+        // Guardar o fator no cálculo
+        calculo.setFator_correcao(fatorCorrecao);
         //sem coef
         calculo.setCoef_min(null);
         calculo.setCoef_max(null);
 
-        // 2. Calcular o Peso Metabólico (PM)
+        // calcula o Peso Metabólico (PM)
         // Converte o peso atual (BigDecimal) para double
         double pesoAtualDouble = calculo.getPeso_atual().doubleValue();
-        // Calcula a potência usando Math.pow (que aceita double)
+        // Calcula a potência
         double pesoMetabolicoDouble = Math.pow(pesoAtualDouble, 0.75);
         // Converte o resultado de volta para BigDecimal
         BigDecimal pesoMetabolico = BigDecimal.valueOf(pesoMetabolicoDouble);
 
-        // 3. Calcular a NEM Adulto Base
+        //  NEM Adulto Base
         BigDecimal nemAdultoBase = FATOR_NEM_ADULTO_BASE.multiply(pesoMetabolico);
 
-        // 4. Calcular a NEM do Filhote
+        // NEM do Filhote
         BigDecimal nemFilhote = fatorCorrecao.multiply(nemAdultoBase);
-        calculo.setNem_media(nemFilhote.setScale(2, RoundingMode.HALF_UP)); // Salva a NEM calculada
+        calculo.setNem_media(nemFilhote.setScale(2, RoundingMode.HALF_UP));
 
-        // Como a fórmula do filhote já dá a NEM diretamente (não min/max),
-        // podemos opcionalmente setar min/max como o mesmo valor ou deixá-los nulos.
-        // Vamos setar min/max como o próprio valor para consistência.
+
+        // filhote nao precisa de nem min e max
         calculo.setNem_min(calculo.getNem_media());
         calculo.setNem_max(calculo.getNem_media());
-        // Limpar coeficientes min/max, pois não se aplicam diretamente a filhotes desta forma
         calculo.setCoef_min(null);
         calculo.setCoef_max(null);
 
 
-        // 5. Calcular a quantidade de ração em gramas
+        // quantidade de ração em gramas
         BigDecimal emDaRacao = calculo.getEm();
         BigDecimal fatorKgParaGramas = new BigDecimal("1000");
 
@@ -234,7 +224,6 @@ public class CalculoService {
         calculo.setResultado_max(resultado);
         calculo.setData_calculo(LocalDateTime.now());
 
-        // 6. Salvar e retornar o cálculo
         return calculoRepository.save(calculo);
     }
 
@@ -249,59 +238,50 @@ public class CalculoService {
             throw new IllegalArgumentException("O valor de EM da ração deve ser positivo e não nulo.");
         }
 
-        // Calcular Peso Metabólico específico para Gatos (pesoAtual ^ 0.67)
-        // Converte o peso atual (BigDecimal) para double
+        // Peso Metabólico específico para Gatos (pesoAtual ^ 0.67)
         double pesoAtualDouble = calculo.getPeso_atual().doubleValue();
-        // Calcula a potência usando Math.pow (que aceita double)
         double pesoMetabolicoGatoDouble = Math.pow(pesoAtualDouble, 0.67);
-        // Converte o resultado de volta para BigDecimal
         BigDecimal pesoMetabolicoGato = BigDecimal.valueOf(pesoMetabolicoGatoDouble);
 
         BigDecimal nemMin;
         BigDecimal nemMax;
         BigDecimal nemMedia;
 
-        // --- Lógica para Gato Adulto (>= 1 ano) ---
+        // gato adulto
         if (anos >= 1) {
             calculo.setFase_vida("ADULTO_GATO");
             String nivelAtividadeGato = calcularNivelAtividadeGato(calculo.getNivel_atv()); // Converte a string do DTO
 
-            // Busca os coeficientes na tabela nutricao_gatos
+            // busca os coeficientes na tabela nutricao_gatos
             NutricaoGatos nutricaoGatoAdulto = nutricaoGatosRepository
                     .findAdultoByFaseVidaAndNivelAtv ("ADULTO", nivelAtividadeGato)
                     .orElseThrow(() -> new RuntimeException("Não foram encontrados coeficientes de nutrição para gato adulto com nível de atividade: " + nivelAtividadeGato));
 
-            // Guarda os coeficientes encontrados no objeto Calculo
             calculo.setCoef_min(nutricaoGatoAdulto.getCoef_min ());
             calculo.setCoef_max(nutricaoGatoAdulto.getCoef_max ());
-            calculo.setFator_correcao(null); // Fator de correção não se aplica a adultos
+            calculo.setFator_correcao(null); // fator de correção não se aplica a adultos
 
-            // Calcula a NEM (Necessidade Energética de Manutenção) mínima, máxima e média
+            // calculo da NEM
             nemMin = calculo.getCoef_min().multiply(pesoMetabolicoGato);
             nemMax = calculo.getCoef_max().multiply(pesoMetabolicoGato);
-            // Calcula a média entre NEM mínima e máxima
             nemMedia = nemMin.add(nemMax).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
 
         }
-        // --- Lógica para Gato Filhote (< 1 ano) ---
+        // gatos filhotes
         else {
             calculo.setFase_vida("FILHOTE_GATO");
 
-            // Busca os dados nutricionais para filhote pela idade em meses
-            // **Requer que a tabela nutricao_gatos tenha sido alterada com idade_meses_min/max**
+            // busca os dados nutricionais para filhote pela idade em meses
             NutricaoGatos nutricaoGatoFilhote = nutricaoGatosRepository
                     .findFilhoteByFase_vidaAndIdadeMeses ("FILHOTE", idadeTotalEmMeses)
                     .orElseThrow(() -> new RuntimeException("Não foram encontrados fatores de nutrição para gato filhote com idade de " + idadeTotalEmMeses + " meses."));
 
-            // Os "fatores" para filhotes estão nas colunas coefMin/Max na tabela nutricao_gatos
             BigDecimal fatorMin = nutricaoGatoFilhote.getCoef_min ();
             BigDecimal fatorMax = nutricaoGatoFilhote.getCoef_max ();
 
-            // Salva os fatores no cálculo para histórico (opcional, mas útil)
-            // Reutilizamos as colunas coef_min/max para guardar os fatores min/max do filhote
             calculo.setCoef_min(fatorMin);
             calculo.setCoef_max(fatorMax);
-            calculo.setFator_correcao(null); // Fator de correção (como o de cães) não se aplica diretamente aqui
+            calculo.setFator_correcao(null); // Fator de correção não se aplica
 
             // Calcula a NEM base de um gato adulto ativo (100 * PM)
             BigDecimal nemAdultoBaseGato = FATOR_NEM_ADULTO_GATO_BASE.multiply(pesoMetabolicoGato);
@@ -312,14 +292,14 @@ public class CalculoService {
             nemMedia = nemMin.add(nemMax).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
         }
 
-        // --- Parte Comum: Salvar NEMs e Calcular Quantidade de Ração ---
+        // Salvar NEMs e Calcular Quantidade de Ração
 
         // Arredonda e salva os valores de NEM no objeto Calculo
         calculo.setNem_min(nemMin.setScale(2, RoundingMode.HALF_UP));
         calculo.setNem_max(nemMax.setScale(2, RoundingMode.HALF_UP));
         calculo.setNem_media(nemMedia.setScale(2, RoundingMode.HALF_UP));
 
-        // Calcula a quantidade de ração em gramas (mínima, máxima e média)
+        // Calcula a quantidade de ração em gramas
         BigDecimal resultadoMin = nemMin.divide(emDaRacao, 4, RoundingMode.HALF_UP)
                 .multiply(fatorKgParaGramas)
                 .setScale(2, RoundingMode.HALF_UP);
@@ -330,13 +310,11 @@ public class CalculoService {
                 .multiply(fatorKgParaGramas)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        // Salva os resultados da quantidade de ração
         calculo.setResultado_min(resultadoMin);
         calculo.setResultado_max(resultadoMax);
-        calculo.setResultado(resultadoMedia); // Resultado principal é a média
-        calculo.setData_calculo(LocalDateTime.now()); // Data/Hora do cálculo
+        calculo.setResultado(resultadoMedia);
+        calculo.setData_calculo(LocalDateTime.now());
 
-        // Salva o objeto Calculo completo no banco de dados
         return calculoRepository.save(calculo);
     }
 
@@ -347,7 +325,7 @@ public class CalculoService {
         }
         String nivelLower = nivelAtividadeInput.toLowerCase();
 
-        // Mapeia termos comuns para os valores da sua tabela ('BAIXA', 'ATIVO')
+        // Mapeia termos comuns para os valores da tabela ('BAIXA', 'ATIVO')
         if (nivelLower.contains("baixa") || nivelLower.contains("castrado") || nivelLower.contains("pouca") || nivelLower.contains("inativo")) {
             return "BAIXA";
         } else if (nivelLower.contains("ativo") || nivelLower.contains("moderada") || nivelLower.contains("intensa")) {

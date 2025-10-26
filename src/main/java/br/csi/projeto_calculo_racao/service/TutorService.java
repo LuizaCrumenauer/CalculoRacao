@@ -47,24 +47,20 @@ public class TutorService {
             throw new DataIntegrityViolationException("Email já cadastrado no sistema.");
         }
 
-        // 1. Cria o objeto Usuario
         Usuario novoUsuario = new Usuario();
         novoUsuario.setEmail(dados.email());
         novoUsuario.setSenha(dados.senha());
         novoUsuario.setRole(Role.USER); // Por padrão, td novo tutor é um USER
 
-        // 2. Salva o usuário usando o UsuarioService (que já criptografa a senha)
         Usuario usuarioSalvo = usuarioService.criarUsuario(novoUsuario);
 
-        // 3. Cria o objeto Tutor e associa o usuário salvo
         Tutor novoTutor = new Tutor();
         novoTutor.setNome(dados.nome());
         novoTutor.setCpf(dados.cpf());
         novoTutor.setTelefone(dados.telefone());
         novoTutor.setEndereco(dados.endereco());
-        novoTutor.setUsuario(usuarioSalvo); // Associa o usuário ao tutor
+        novoTutor.setUsuario(usuarioSalvo);
 
-        // 4. Salva o tutor
         return this.repository.save(novoTutor);
     }
 
@@ -90,28 +86,23 @@ public class TutorService {
 
     @Transactional
     public Tutor atualizarPerfilCompleto(DadosAtualizacaoPerfilTutorDTO dados) {
-        // 1. IDENTIFICA O TUTOR E USUÁRIO LOGADO
+        //identifica ususario pelo token
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String emailAtual = authentication.getName();
         Tutor tutorParaAtualizar = this.repository.findByUsuario_Email(emailAtual)
                 .orElseThrow(() -> new NoSuchElementException("Perfil de tutor não encontrado para o usuário logado."));
         Usuario usuarioAssociado = tutorParaAtualizar.getUsuario();
 
-        // 2. ATUALIZA DADOS SIMPLES (NOME, TELEFONE, ENDEREÇO)
-        // Esses campos não exigem confirmação de senha.
         if (dados.nome() != null && !dados.nome().isBlank()) {
             tutorParaAtualizar.setNome(dados.nome());
         }
         if (dados.telefone() != null) {
-            // A validação do @Pattern no DTO já tratou o formato
             tutorParaAtualizar.setTelefone(dados.telefone());
         }
         if (dados.endereco() != null) {
             tutorParaAtualizar.setEndereco(dados.endereco());
         }
 
-        // 3. ATUALIZA DADOS DO TUTOR (CPF)
-        // Também não exige senha, mas exige verificação de duplicidade.
         if (dados.novoCpf() != null && !dados.novoCpf().isBlank()) {
             String novoCpfLimpo = CpfUtils.limpar(dados.novoCpf());
             String cpfAtualLimpo = CpfUtils.limpar(tutorParaAtualizar.getCpf());
@@ -125,61 +116,44 @@ public class TutorService {
             }
         }
 
-        // 4. VERIFICA OPERAÇÕES CRÍTICAS (EMAIL E SENHA)
-        // Define o que o usuário está TENTANDO fazer.
         boolean querMudarEmail = dados.novoEmail() != null && !dados.novoEmail().isBlank() && !dados.novoEmail().equalsIgnoreCase(emailAtual);
         boolean querMudarSenha = dados.novaSenha() != null && !dados.novaSenha().isBlank();
 
-        // 5. VALIDA A SENHA ATUAL (SE NECESSÁRIO)
-        // Se o usuário quer mudar email OU senha, ele PRECISA fornecer a senha atual correta.
         if (querMudarEmail || querMudarSenha) {
             if (dados.senhaAtual() == null || dados.senhaAtual().isBlank()) {
                 throw new BadCredentialsException("A senha atual é obrigatória para alterar o email ou a senha.");
             }
 
-            // Verifica se a senha atual fornecida está correta
             if (!passwordEncoder.matches(dados.senhaAtual(), usuarioAssociado.getSenha())) {
                 throw new BadCredentialsException("Senha atual incorreta.");
             }
 
-            // Se chegamos aqui, o usuário está autenticado para realizar operações críticas.
         }
 
-        // 6. EXECUTA A MUDANÇA DE EMAIL (SE SOLICITADO E VALIDADO)
         if (querMudarEmail) {
-            // A senha já foi validada no passo 5.
-            // verifica se o NOVO email está disponível.
+
             Optional<Usuario> usuarioComNovoEmail = usuarioRepository.findByEmail(dados.novoEmail());
 
             if (usuarioComNovoEmail.isPresent() && !usuarioComNovoEmail.get().getId().equals(usuarioAssociado.getId())) {
                 throw new DataIntegrityViolationException("O novo email fornecido já está em uso por outra conta.");
             }
 
-            // Se tudo estiver OK, atualiza o email
             usuarioAssociado.setEmail(dados.novoEmail());
             System.out.println("Email do usuário atualizado para: " + dados.novoEmail());
         }
 
-        // 7. EXECUTA A MUDANÇA DE SENHA (SE SOLICITADO E VALIDADO)
         if (querMudarSenha) {
-            // A senha já foi validada no passo 5.
 
-            // (Opcional) Você pode adicionar mais validações aqui, como "nova senha não pode ser igual à antiga"
             if (passwordEncoder.matches(dados.novaSenha(), usuarioAssociado.getSenha())) {
-                // No seu caso, o TratadorDeErros já pega BadCredentials
                 throw new BadCredentialsException("A nova senha não pode ser igual à senha atual.");
             }
 
-            // Se tudo estiver OK, codifica e salva a nova senha
             usuarioAssociado.setSenha(passwordEncoder.encode(dados.novaSenha()));
             System.out.println("Senha do usuário atualizada.");
         }
 
-        // 8. SALVA AS MUDANÇAS
-        // O @Transactional garante que tanto o 'tutorParaAtualizar' quanto o 'usuarioAssociado'
-        // serão salvos no banco de dados.
         Tutor tutorSalvo = this.repository.save(tutorParaAtualizar);
 
-        return tutorSalvo; // Retorna o tutor com os dados atualizados
+        return tutorSalvo;
     }
 }

@@ -1,12 +1,10 @@
 package br.csi.projeto_calculo_racao.DTO;
 
-import io.swagger.v3.oas.annotations.media.Schema; // 1. Importar
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 @Schema(description = "Dados para atualização do perfil do Admin (email ou senha). 'senhaAtual' é sempre obrigatória.",
-        // 2. Exemplo (Note que 'novoEmail' e 'novaSenha' são opcionais)
         example = "{\"email\": \"admin_atual@email.com\", \"novoEmail\": \"admin_novo@email.com\", \"novaSenha\": null, \"senhaAtual\": \"senhaAntiga123\"}")
 public record DadosAtualizacaoPerfilAdminDTO(
         @Email @NotBlank
