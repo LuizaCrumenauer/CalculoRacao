@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -134,6 +135,40 @@ public class SaudeController {
             @PathVariable UUID petUuid) {
         List<RegistroSaude> registros = saudeService.getRegistrosPorPet(petUuid);
         return ResponseEntity.ok(registros);
+    }
+
+    @DeleteMapping("/registros/{idRegistro}")
+    @Transactional
+    @Operation(summary = "Excluir um registro de saúde",
+            description = "Exclui um registro de saúde (vacina, etc.) pelo seu ID numérico. Requer autenticação como ADMIN ou como o Tutor dono do pet.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Registro excluído com sucesso",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é ADMIN nem o dono do pet)",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Registro de saúde não encontrado com o ID fornecido",
+                    content = @Content)
+    })
+    public ResponseEntity<Void> excluirRegistroSaude(
+            @Parameter(description = "ID (numérico) do registro de saúde a ser excluído", required = true)
+            @PathVariable Long idRegistro) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+
+        Tutor tutorLogado = null;
+
+        if (!isAdmin) {
+            tutorLogado = getTutorLogado();
+        }
+
+        saudeService.excluirRegistro(idRegistro, isAdmin, tutorLogado);
+        return ResponseEntity.noContent().build();
     }
 
     // utilitário para pegar o tutor logado a partir do token

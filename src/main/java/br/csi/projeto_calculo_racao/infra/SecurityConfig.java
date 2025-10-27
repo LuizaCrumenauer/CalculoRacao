@@ -1,5 +1,6 @@
 package br.csi.projeto_calculo_racao.infra;
 
+import br.csi.projeto_calculo_racao.model.usuario.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -43,12 +44,15 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/login", "/tutores/cadastrar").permitAll()
                         // Endpoints de ADMIN
-                        .requestMatchers(HttpMethod.GET, "/tutores/listar").hasRole("ADMIN")
-                        .requestMatchers("/usuarios/tornar-admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/usuarios/admin").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/usuarios/admin/atualizar").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/saude/itens/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/tutores/listar").hasRole(Role.ADMIN.name())
+                        .requestMatchers("/usuarios/tornar-admin/**").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/usuarios/admin").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/admin/atualizar").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/saude/itens/admin").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/pets/listar").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/usuarios/{usuarioId:\\d+}").hasRole( Role.ADMIN.name())
                         // Usuários autenticados
+                        .requestMatchers(HttpMethod.DELETE, "/usuarios/minha-conta").authenticated()
                         .requestMatchers(HttpMethod.GET, "/tutores/perfil").authenticated()
                         .requestMatchers("/saude/**").authenticated()
                         .anyRequest().authenticated()
