@@ -1,5 +1,10 @@
 # PetSaude - API de Cálculo de Ração e Gestão de Pets
 
+## Link para o vídeo do trabalho:
+```http
+https://www.youtube.com/watch?v=8he9eXZoyM4
+```
+
 ## 1. Introdução
 
 O projeto PetSaude é uma API RESTful desenvolvida em Java com Spring Boot. O objetivo da API é fornecer *endpoints* para o gerenciamento de tutores e seus animais de estimação, com foco principal em um serviço de cálculo de porção de ração diária, além de funcionalidades de gestão de saúde (vacinas, peso) dos pets.
