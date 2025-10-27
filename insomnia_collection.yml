@@ -10,7 +10,7 @@ collection:
     meta:
       id: fld_067b00b63f4a42918eb50a51f4645648
       created: 1760883413555
-      modified: 1761530640294
+      modified: 1761573363523
       sortKey: -1760883413555
       description: ""
     children:
@@ -63,7 +63,7 @@ collection:
         meta:
           id: req_93569041571545f6a00c9eb117ba5ec7
           created: 1760883821167
-          modified: 1761527013298
+          modified: 1761573286533
           isPrivate: false
           description: ""
           sortKey: -1760883821167
@@ -117,12 +117,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: http://localhost:8080/PetSaude/pets/cadastrar/020d80a8-7b37-4531-a5f4-8766cbf908ce
+      - url: http://localhost:8080/PetSaude/pets/cadastrar/37ed028d-ac9a-44ed-acb2-ff9414ca9acd
         name: cadastrar um pet para o tutor (colocar uuid do tutor na url)
         meta:
           id: req_3e375330c16248f69b057763fb3e042a
           created: 1760885040522
-          modified: 1761527851512
+          modified: 1761573559329
           isPrivate: false
           description: ""
           sortKey: -1760885040522
@@ -291,7 +291,7 @@ collection:
         meta:
           id: req_16d62e54a49d4689b660469b617ac3c8
           created: 1760924203698
-          modified: 1761511489630
+          modified: 1761573585942
           isPrivate: false
           description: ""
           sortKey: -1760923907970
@@ -310,7 +310,7 @@ collection:
             value: insomnia/11.6.1
         authentication:
           type: bearer
-          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgUGV0U2F1ZGUiLCJzdWIiOiJ0ZXJjZWlyby5hZG1pbkBwZXRzYXVkZS5jb20iLCJleHAiOjE3NjE1MTg2NjF9.HKMGeJB9tAVbZ1yx2m6iUj6MupaRinJ7ojSpm1QEvv0
+          token: "{{ _[''].token }}"
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -355,11 +355,11 @@ collection:
             store: true
           rebuildPath: true
       - url: http://localhost:8080/PetSaude/usuarios/3
-        name: excluir um usuario
+        name: excluir um usuario (id do usuario na url)
         meta:
           id: req_8fcffd7e85054ebc9bb660f41ce68848
           created: 1761530481745
-          modified: 1761530770699
+          modified: 1761573748880
           isPrivate: false
           description: ""
           sortKey: -1761530481745
@@ -519,11 +519,11 @@ collection:
             store: true
           rebuildPath: true
       - url: http://localhost:8080/PetSaude/pets/excluir/bcdfb17b-6723-4ad3-a490-1e5d6a446634
-        name: Excluir um pet (id do usuario na url)
+        name: Excluir um pet (uuid do pet na url)
         meta:
           id: req_7f94418f9acd484ab47de46792f1278d
           created: 1761093024477
-          modified: 1761530785167
+          modified: 1761573700179
           isPrivate: false
           description: ""
           sortKey: -1761093024477
@@ -1006,27 +1006,27 @@ cookieJar:
   meta:
     id: jar_c6e580c6feafaa13b3721c3260bd37cdaf12f799
     created: 1760883135742
-    modified: 1761530640284
+    modified: 1761573363516
 environments:
   name: Base Environment
   meta:
     id: env_c6e580c6feafaa13b3721c3260bd37cdaf12f799
     created: 1760883135739
-    modified: 1761530735465
+    modified: 1761573363521
     isPrivate: false
   data:
     "":
       base_url: http://localhost:8080/PetSaude
-      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgUGV0U2F1ZGUiLCJzdWIiOiJtYXJpYS5zaWx2YUBlbWFpbC5jb20iLCJleHAiOjE3NjE1Mzc4NTF9.REb8SLlvO_hXT1kKll_P6MS08E5FvYui4TgfGflbFRQ
+      token: SEU_TOKEN_AQUI
   subEnvironments:
     - name: token
       meta:
         id: env_c3b57dfbfe814ce48cb19dede22260ec
         created: 1761568072915
-        modified: 1761568107662
+        modified: 1761573514961
         isPrivate: false
         sortKey: 1761568072916
       data:
         "":
           base_url: http://localhost:8080/PetSaude
-          token: SEU_TOKEN_AQUI
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgUGV0U2F1ZGUiLCJzdWIiOiJtYXJpYS5zaWx2YUBlbWFpbC5jb20iLCJleHAiOjE3NjE1ODA2OTR9.pZlCKgPB6oYEfG6m4OMU7r88q4Cz9sHQsVZnc3s94aI
