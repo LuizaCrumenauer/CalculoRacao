@@ -1018,3 +1018,15 @@ environments:
     "":
       base_url: http://localhost:8080/PetSaude
       token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgUGV0U2F1ZGUiLCJzdWIiOiJtYXJpYS5zaWx2YUBlbWFpbC5jb20iLCJleHAiOjE3NjE1Mzc4NTF9.REb8SLlvO_hXT1kKll_P6MS08E5FvYui4TgfGflbFRQ
+  subEnvironments:
+    - name: token
+      meta:
+        id: env_c3b57dfbfe814ce48cb19dede22260ec
+        created: 1761568072915
+        modified: 1761568107662
+        isPrivate: false
+        sortKey: 1761568072916
+      data:
+        "":
+          base_url: http://localhost:8080/PetSaude
+          token: SEU_TOKEN_AQUI
