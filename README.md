@@ -40,7 +40,7 @@ Toda a API foi documentada seguindo o padrão OpenAPI 3 (Swagger), utilizando an
 A documentação interativa está disponível em:
 
 ```http
-http://localhost:8080/PetSaude/swagger-ui.html
+http://localhost:8080/PetSaude/swagger-ui
 ```
 
 ## 6. Testes da API (Insomnia)
