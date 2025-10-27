@@ -2,10 +2,13 @@ package br.csi.projeto_calculo_racao.service;
 
 import br.csi.projeto_calculo_racao.DTO.AdminCreateDTO;
 import br.csi.projeto_calculo_racao.DTO.DadosAtualizacaoPerfilAdminDTO;
+import br.csi.projeto_calculo_racao.model.tutor.Tutor;
+import br.csi.projeto_calculo_racao.model.tutor.TutorRepository;
 import br.csi.projeto_calculo_racao.model.usuario.Role;
 import br.csi.projeto_calculo_racao.model.usuario.Usuario;
 import br.csi.projeto_calculo_racao.model.usuario.UsuarioRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,16 +16,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final TutorRepository tutorRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService( UsuarioRepository usuarioRepository, TutorRepository tutorRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.tutorRepository = tutorRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -33,10 +39,15 @@ public class UsuarioService {
 
     public Usuario tornarAdmin(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new NoSuchElementException ("Usuário não encontrado com o ID: " + usuarioId)); // Usar NoSuchElementException
+
+        if (usuario.getRole() == Role.ADMIN) {
+            System.out.println("Usuário já é ADMIN: " + usuario.getEmail());
+            return usuario;
+        }
 
         usuario.setRole(Role.ADMIN);
-
+        System.out.println("Usuário promovido a ADMIN: " + usuario.getEmail());
         return usuarioRepository.save(usuario);
     }
 
@@ -89,5 +100,48 @@ public class UsuarioService {
         } else {
             return adminParaAtualizar;
         }
+    }
+
+    @Transactional
+    public void excluirUsuario(Long usuarioId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String adminLogadoEmail = authentication.getName();
+
+        Usuario usuarioParaExcluir = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado com o ID: " + usuarioId));
+
+        if (usuarioParaExcluir.getEmail().equalsIgnoreCase(adminLogadoEmail)) {
+            throw new IllegalArgumentException("Um administrador não pode excluir a própria conta através deste endpoint.");
+        }
+
+        if (usuarioParaExcluir.getRole() == Role.USER) {
+            Tutor tutorAssociado = tutorRepository.findByUsuario_Email(usuarioParaExcluir.getEmail())
+                    .orElseThrow(() -> new NoSuchElementException("Perfil de Tutor não encontrado para o usuário com email: " + usuarioParaExcluir.getEmail() + ". Exclusão do usuário cancelada."));
+
+            tutorRepository.delete(tutorAssociado);
+            System.out.println("Tutor (e usuário associado) excluído com sucesso: " + usuarioParaExcluir.getEmail());
+
+        } else if (usuarioParaExcluir.getRole() == Role.ADMIN) { //
+            usuarioRepository.delete(usuarioParaExcluir);
+            System.out.println("Usuário Admin excluído com sucesso: " + usuarioParaExcluir.getEmail());
+        } else {
+            throw new IllegalStateException("Role de usuário desconhecida: " + usuarioParaExcluir.getRole());
+        }
+    }
+
+    @Transactional
+    public void excluirPropriaConta() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailUsuarioLogado = authentication.getName();
+
+        Tutor tutorParaExcluir = tutorRepository.findByUsuario_Email(emailUsuarioLogado)
+                .orElseThrow(() -> new NoSuchElementException("Perfil de Tutor não encontrado para o usuário logado. A exclusão só é permitida para Tutores."));
+
+        if (tutorParaExcluir.getUsuario().getRole() != Role.USER) {
+            throw new AccessDeniedException ("Apenas usuários com perfil de Tutor podem excluir a própria conta por este endpoint.");
+        }
+
+        tutorRepository.delete(tutorParaExcluir);
+        System.out.println("Tutor (e usuário associado) auto-excluído com sucesso: " + emailUsuarioLogado);
     }
 }

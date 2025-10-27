@@ -1,0 +1,1020 @@
+type: collection.insomnia.rest/5.0
+name: API Pet Saude
+meta:
+  id: wrk_3bd3b70f2d6548be8cc0fa1fc59d7abf
+  created: 1760883135736
+  modified: 1760883135736
+  description: ""
+collection:
+  - name: Usuario Tutor
+    meta:
+      id: fld_067b00b63f4a42918eb50a51f4645648
+      created: 1760883413555
+      modified: 1761530640294
+      sortKey: -1760883413555
+      description: ""
+    children:
+      - url: http://localhost:8080/PetSaude/tutores/cadastrar
+        name: Criando usuario tutor
+        meta:
+          id: req_d05edd7657a441dc847dee4cf3461e89
+          created: 1760883416862
+          modified: 1761530631287
+          isPrivate: false
+          description: ""
+          sortKey: -1760883416862
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "nome": "Maria da Silva",
+                "cpf": "12345678909",
+                "telefone": "(55) 99999-8888",
+                "endereco": {
+                    "logradouro": "Rua das Flores",
+                    "numero": "123",
+                    "complemento": "Apto 45",
+                    "bairro": "Centro",
+                    "cidade": "Santa Maria",
+                    "uf": "RS",
+                    "cep": "97000-000"
+                },
+                "email": "maria.silva@email.com",
+                "senha": "senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        scripts:
+          afterResponse: "\n\n\n"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/login
+        name: login tutor
+        meta:
+          id: req_93569041571545f6a00c9eb117ba5ec7
+          created: 1760883821167
+          modified: 1761527013298
+          isPrivate: false
+          description: ""
+          sortKey: -1760883821167
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email": "maria.silva@email.com",
+            	"senha": "senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_5dcad1d252384a51bf171d892769116b
+          - name: User-Agent
+            value: insomnia/11.6.1
+            id: pair_02725e63db02477bb299acba2699cd8c
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/tutores/perfil
+        name: Listar proprio usuario com seus pets
+        meta:
+          id: req_dbc66a44e15842439d07a132d7d5a2d0
+          created: 1760884920178
+          modified: 1761528015623
+          isPrivate: false
+          description: ""
+          sortKey: -1760884920178
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+          prefix: ""
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pets/cadastrar/020d80a8-7b37-4531-a5f4-8766cbf908ce
+        name: cadastrar um pet para o tutor (colocar uuid do tutor na url)
+        meta:
+          id: req_3e375330c16248f69b057763fb3e042a
+          created: 1760885040522
+          modified: 1761527851512
+          isPrivate: false
+          description: ""
+          sortKey: -1760885040522
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "nome": "Shadow",
+                "especie": "GATO",
+                "porte": "MEDIO",
+                "data_nasc": "2022-04-27",
+                "sexo": "MACHO"
+            }
+        parameters:
+          - id: pair_d9ab0036e83247a1a6a6cc0b24125648
+            name: ""
+            value: ""
+            description: ""
+            disabled: false
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+          disabled: false
+          prefix: ""
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/tutores/atualizar
+        name: Atualizar dados do tutor
+        meta:
+          id: req_474ac6f61fdd44dea1e52b2e11997efb
+          created: 1761509223269
+          modified: 1761527103349
+          isPrivate: false
+          description: ""
+          sortKey: -1761509223269
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": null,
+              "telefone": null,
+              "endereco": null,
+              "novoCpf": null,
+              "novoEmail": "maria@email.com",
+              "senhaAtual": "senha123",
+            	"novaSenha": "null"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/usuarios/minha-conta
+        name: Excluir a propria conta
+        meta:
+          id: req_07bf918135214c61a845ecfd9cf088cd
+          created: 1761530805779
+          modified: 1761530886630
+          isPrivate: false
+          description: ""
+          sortKey: -1761530805779
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Usuario admin
+    meta:
+      id: fld_bcc9db1576a84c8f89728fefa550e624
+      created: 1760923901916
+      modified: 1761095610947
+      sortKey: -1760923901916
+      description: ""
+    children:
+      - url: http://localhost:8080/PetSaude/tutores/listar
+        name: Listar todos os tutores (apenas admin)
+        meta:
+          id: req_7e12246277fa4f1fa07d3b6c6b12701e
+          created: 1760883943786
+          modified: 1761527703617
+          isPrivate: false
+          description: ""
+          sortKey: -1760923908170
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/login
+        name: Login admin
+        meta:
+          id: req_b5e98efac29246e185a734b6be219c14
+          created: 1760923907870
+          modified: 1761530446364
+          isPrivate: false
+          description: ""
+          sortKey: -1760923908070
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "email": "admin@petsaude.com",
+                "senha": "admin"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/usuarios/admin
+        name: criar novo admin
+        meta:
+          id: req_16d62e54a49d4689b660469b617ac3c8
+          created: 1760924203698
+          modified: 1761511489630
+          isPrivate: false
+          description: ""
+          sortKey: -1760923907970
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "email": "admin@admin",
+                "senha": "senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgUGV0U2F1ZGUiLCJzdWIiOiJ0ZXJjZWlyby5hZG1pbkBwZXRzYXVkZS5jb20iLCJleHAiOjE3NjE1MTg2NjF9.HKMGeJB9tAVbZ1yx2m6iUj6MupaRinJ7ojSpm1QEvv0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/usuarios/admin/atualizar
+        name: atualizar admin
+        meta:
+          id: req_2ed8f71c36824e8e9b4539c7e437ddb9
+          created: 1761511019453
+          modified: 1761527755141
+          isPrivate: false
+          description: ""
+          sortKey: -1761511019453
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "admin@admin",
+              "novoEmail": "admin@petsaude.com",
+              "novaSenha": "admin",
+              "senhaAtual": "senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/usuarios/3
+        name: excluir um usuario
+        meta:
+          id: req_8fcffd7e85054ebc9bb660f41ce68848
+          created: 1761530481745
+          modified: 1761530770699
+          isPrivate: false
+          description: ""
+          sortKey: -1761530481745
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Pets
+    meta:
+      id: fld_7e615efcc25e43a38e5a3bffd9c19427
+      created: 1761087588109
+      modified: 1761087953826
+      sortKey: -1761087588109
+      description: ""
+    children:
+      - url: http://localhost:8080/PetSaude/pets/cadastrar/a206641f-2f09-4638-87a0-10b587e5032f
+        name: Cadastrar um pet (colocar na url uuid do tutor)
+        meta:
+          id: req_ad71b0aa2c224bdc85846f48b7ca879d
+          created: 1761087601905
+          modified: 1761527787874
+          isPrivate: false
+          description: ""
+          sortKey: -1761087601905
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "nome": "Rex",
+                "especie": "CACHORRO",
+                "porte": "GRANDE",
+                "data_nasc": "2020-01-15",
+                "sexo": "MACHO"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        scripts:
+          afterResponse: |-
+            // Verifica se a requisição foi bem-sucedida (status 201 Created)
+            expect(response.status).to.equal(201);
+
+            // Converte o corpo da resposta para um objeto JSON
+            const body = JSON.parse(response.body);
+
+            // Salva o UUID do novo pet na variável 'uuid_pet'
+            insomnia.environment.set("uuid_pet", body.uuid);
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pets/buscar/8cf7631c-f128-4425-a0cd-e0f51e068260
+        name: Buscar Pet (especifico) (colocar na url uuid do pet )
+        meta:
+          id: req_886db247db164e8dbacff8842c5576bd
+          created: 1761087944957
+          modified: 1761527881484
+          isPrivate: false
+          description: ""
+          sortKey: -1761087944957
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pets/listar
+        name: Listar todos os pets (admin)
+        meta:
+          id: req_1ab0336836db454eacf44463df417606
+          created: 1761088102270
+          modified: 1761528028534
+          isPrivate: false
+          description: ""
+          sortKey: -1761088102270
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pets/atualizar/a206641f-2f09-4638-87a0-10b587e5032f
+        name: Atualizar Pet
+        meta:
+          id: req_8ae274285c014caba0fa78b971d1304d
+          created: 1761092827710
+          modified: 1761527545919
+          isPrivate: false
+          description: ""
+          sortKey: -1761092827710
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |+
+            {
+            	  "uuid": "15b4cb28-529b-4d22-add1-4c2d1f2e11b0",
+                "nome": "Shadow",
+                "especie": "GATO",
+                "porte": "MEDIO",
+                "data_nasc": "2022-04-27",
+                "sexo": "MACHO"
+            }
+
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pets/excluir/bcdfb17b-6723-4ad3-a490-1e5d6a446634
+        name: Excluir um pet (id do usuario na url)
+        meta:
+          id: req_7f94418f9acd484ab47de46792f1278d
+          created: 1761093024477
+          modified: 1761530785167
+          isPrivate: false
+          description: ""
+          sortKey: -1761093024477
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Registro peso
+    meta:
+      id: fld_9721a1b722ac49ae82cd3bea831c8501
+      created: 1761093519205
+      modified: 1761093638606
+      sortKey: -1761093519205
+      description: ""
+    children:
+      - url: http://localhost:8080/PetSaude/pesos/registrar/15b4cb28-529b-4d22-add1-4c2d1f2e11b0
+        name: Registrar peso (colocar uuid do pet na url)
+        meta:
+          id: req_ccce2b570a654b59bd11a497b95dfe06
+          created: 1761093128861
+          modified: 1761528209413
+          isPrivate: false
+          description: ""
+          sortKey: -1761093523854
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "peso": 4.6
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pesos/atualizar/2
+        name: Atualiza peso (colocar id do registroPeso na url)
+        meta:
+          id: req_29904601db8c453d80d990612b470a6e
+          created: 1761093526619
+          modified: 1761528238574
+          isPrivate: false
+          description: ""
+          sortKey: -1761093526619
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "peso": -4.60,
+                "data_registro": "2025-09-21"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pesos/excluir/3
+        name: Excluir registro peso (especifico) (colocar id na url)
+        meta:
+          id: req_3886ab2b5e3549738a4bd12ea2a8711d
+          created: 1761093605384
+          modified: 1761528262089
+          isPrivate: false
+          description: ""
+          sortKey: -1761093605384
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/pesos/historico/15b4cb28-529b-4d22-add1-4c2d1f2e11b0
+        name: Historico de peso (colocar uuid do pet na url)
+        meta:
+          id: req_c1d80dbd3e8f44b096784a6d600fc6b8
+          created: 1761093639436
+          modified: 1761528302832
+          isPrivate: false
+          description: ""
+          sortKey: -1761093639436
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Registro saude e cadastro de itens
+    meta:
+      id: fld_b3bb891a07fd4bca89e4e76ca5b3fa20
+      created: 1761094454847
+      modified: 1761095018562
+      sortKey: -1761094454847
+      description: ""
+    children:
+      - url: http://localhost:8080/PetSaude/saude/itens/admin
+        name: "Admin: cadastro de itens"
+        meta:
+          id: req_2227e40f3e564589bf847c0ab96b0873
+          created: 1761094460916
+          modified: 1761528317840
+          isPrivate: false
+          description: ""
+          sortKey: -1761094460916
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "nome": "Vermífugo Canino Padrão",
+                "tipo": "VERMIFUGO"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/saude/itens/listar
+        name: Listar todos os itens cadastrados se for admin ve tudo se for usuario ve
+          apeas os seus e os do admin
+        meta:
+          id: req_7437b25a540748faa04757628a4c353e
+          created: 1761094466802
+          modified: 1761528328576
+          isPrivate: false
+          description: ""
+          sortKey: -1761094466802
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/saude/itens
+        name: "Tutor: cria um item personalizado"
+        meta:
+          id: req_1bf81cd957f34b53a69d60944ec5b740
+          created: 1761095015669
+          modified: 1761528352209
+          isPrivate: false
+          description: ""
+          sortKey: -1761095015669
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "nome": "Remédio de Alergia do Rex",
+                "tipo": "REMEDIO"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.1
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/saude/registros
+        name: registrar aplicação de saude no pet
+        meta:
+          id: req_bd34ef8545a040e8be5a3b00abc6d903
+          created: 1761508170477
+          modified: 1761528389312
+          isPrivate: false
+          description: ""
+          sortKey: -1761508170477
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "petUuid": "9389923c-d75a-450b-8821-649205910b4f",
+              "itemSaudeId": 1,
+              "dataAplicacao": "2025-10-26",
+              "proximaDose": "2026-10-26"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/saude/registros/8cf7631c-f128-4425-a0cd-e0f51e068260
+        name: Registros de um pet especifico (colocar uuid do pet na url)
+        meta:
+          id: req_05849ee6d4ba407e9d835e34a57b685a
+          created: 1761508492117
+          modified: 1761528482069
+          isPrivate: false
+          description: ""
+          sortKey: -1761508492117
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/saude/registros/1
+        name: Excluir registro (url id do registro)
+        meta:
+          id: req_1df395de5b9346eaa85e0e1cce32e627
+          created: 1761528973541
+          modified: 1761529038316
+          isPrivate: false
+          description: ""
+          sortKey: -1761528973541
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: "calculos cães "
+    meta:
+      id: fld_6f5c3d40fa7244be95c7413d68e0e23f
+      created: 1761425160004
+      modified: 1761487498550
+      sortKey: -1761425160004
+      description: ""
+    children:
+      - url: http://localhost:8080/PetSaude/calculos/calcular/15b4cb28-529b-4d22-add1-4c2d1f2e11b0
+        name: realizar calculo adulto (uuid do pet na url)
+        meta:
+          id: req_e0a56922ec2041dd8ff65772a60b65fb
+          created: 1761425514447
+          modified: 1761528587003
+          isPrivate: false
+          description: ""
+          sortKey: -1761425514447
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "idTipoRacao": 2,
+                "emManual": null,
+                "pesoAtual": 15.5,
+                "nivelAtividade": "Baixa atividade (<1h/dia)"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/calculos/calcular/9389923c-d75a-450b-8821-649205910b4f
+        name: realizar calculo filhote (uuid do pet na url)
+        meta:
+          id: req_ed4b17bc4c10478d89d860fcbea1911a
+          created: 1761426341211
+          modified: 1761528597811
+          isPrivate: false
+          description: ""
+          sortKey: -1761426341211
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "idTipoRacao": 4,
+                "emManual": null,
+                "pesoAtual": 4.2,
+                "nivelAtividade": "ignorarParaFilhote"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: calculo gatos
+    meta:
+      id: fld_e9a4d4f0bee14260bb66c153dd868363
+      created: 1761487492572
+      modified: 1761487492572
+      sortKey: -1761487492572
+      description: ""
+    children:
+      - url: http://localhost:8080/PetSaude/calculos/calcular/b6784903-0d66-4b43-9745-d617e7cbe50a
+        name: realizar calculo gato adulto (uuid do pet na url)
+        meta:
+          id: req_b4d82292f9c94c448145d49e7a4cf523
+          created: 1761487503563
+          modified: 1761528607254
+          isPrivate: false
+          description: ""
+          sortKey: -1761487503563
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "idTipoRacao": null,
+                "emManual": 4200.00,
+                "pesoAtual": 4.5,
+                "nivelAtividade": "Castrados / baixa atividade"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/PetSaude/calculos/calcular/c8e879a7-4aa6-420a-9142-999e281e37a1
+        name: realizar calculo gato filhote (uuid do pet na url)
+        meta:
+          id: req_44d0cf14bc7a41a3ab75ad080febf778
+          created: 1761488690313
+          modified: 1761528613514
+          isPrivate: false
+          description: ""
+          sortKey: -1761488690313
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "idTipoRacao": null,
+                "emManual": 4000,
+                "pesoAtual": 2.0,
+                "nivelAtividade": "Ignorado"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.2
+        authentication:
+          type: bearer
+          token: "{{ _[''].token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_c6e580c6feafaa13b3721c3260bd37cdaf12f799
+    created: 1760883135742
+    modified: 1761530640284
+environments:
+  name: Base Environment
+  meta:
+    id: env_c6e580c6feafaa13b3721c3260bd37cdaf12f799
+    created: 1760883135739
+    modified: 1761530735465
+    isPrivate: false
+  data:
+    "":
+      base_url: http://localhost:8080/PetSaude
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBUEkgUGV0U2F1ZGUiLCJzdWIiOiJtYXJpYS5zaWx2YUBlbWFpbC5jb20iLCJleHAiOjE3NjE1Mzc4NTF9.REb8SLlvO_hXT1kKll_P6MS08E5FvYui4TgfGflbFRQ
