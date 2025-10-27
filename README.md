@@ -2,7 +2,7 @@
 
 ## Link para o vídeo do trabalho:
 ```http
-[https://www.youtube.com/watch?v=8he9eXZoyM4]
+https://www.youtube.com/watch?v=8he9eXZoyM4
 ```
 
 ## 1. Introdução
