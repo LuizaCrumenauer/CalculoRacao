@@ -17,6 +17,11 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 
 @Configuration
@@ -33,6 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Swagger + API docs
@@ -54,6 +60,7 @@ public class SecurityConfig {
                         // Usuários autenticados
                         .requestMatchers(HttpMethod.DELETE, "/usuarios/minha-conta").authenticated()
                         .requestMatchers(HttpMethod.GET, "/tutores/perfil").authenticated()
+                        .requestMatchers("/racoes/listar").authenticated()
                         .requestMatchers("/saude/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -63,6 +70,23 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(autenticacaoFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Permite requisições do seu Angular (localhost:4200)
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        // Permite os métodos HTTP comuns
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
+        // Permite todos os cabeçalhos (incluindo Authorization)
+        configuration.setAllowedHeaders( List.of("*"));
+        // Permite credenciais (se necessário no futuro)
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

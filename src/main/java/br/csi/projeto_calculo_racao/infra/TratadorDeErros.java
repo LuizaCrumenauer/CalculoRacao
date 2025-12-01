@@ -36,17 +36,22 @@ public class TratadorDeErros {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<DadosErroValidacao> tratarErroConflitoDeDados(DataIntegrityViolationException ex) {
-        String mensagem = ex.getMessage();
+        String mensagem = ex.getMostSpecificCause().getMessage();
         String campo = "desconhecido";
+        String mensagemAmigavel = "Conflito de dados.";
 
         if (mensagem.contains("CPF")) {
             campo = "cpf";
+            mensagemAmigavel = "Este CPF já está cadastrado.";
         } else if (mensagem.contains("Email")) {
             campo = "email";
+            mensagemAmigavel = "Este email já está em uso.";
+        }
+        else if (mensagem.contains("atualização ou exclusão em tabela \"item_saude\" viola restrição de chave estrangeira \"registro_saude_item_saude_id_fkey\" em \"registro_saude\"")) {
+            mensagemAmigavel = "Não é possível excluir este item pois ele já está vinculado a um ou mais registros de saúde.";
         }
 
-        var dadosErro = new DadosErroValidacao(campo, mensagem);
-
+        var dadosErro = new DadosErroValidacao(campo, mensagemAmigavel);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(dadosErro);
     }
 

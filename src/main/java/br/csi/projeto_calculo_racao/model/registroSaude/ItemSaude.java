@@ -2,6 +2,7 @@ package br.csi.projeto_calculo_racao.model.registroSaude;
 
 import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -34,5 +35,10 @@ public class ItemSaude {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_id")
     @JsonIgnore
-    private Tutor tutor; //se nulo item do admin
+    private Tutor tutor;
+    //se nulo item do admin
+    @JsonProperty("is_global")
+    public boolean isGlobal() {
+        return this.tutor == null;
+    }
 }
