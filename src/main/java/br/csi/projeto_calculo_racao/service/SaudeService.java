@@ -10,6 +10,8 @@ import br.csi.projeto_calculo_racao.model.registroSaude.RegistroSaude;
 import br.csi.projeto_calculo_racao.model.registroSaude.RegistroSaudeRepository;
 import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +60,48 @@ public class SaudeService {
         novoRegistro.setProxima_dose(dto.proximaDose());
 
         return registroSaudeRepository.save(novoRegistro);
+    }
+
+    @Transactional
+    public RegistroSaude atualizarRegistro(Long id, RegistroSaudeDTO dto) {
+        RegistroSaude registro = registroSaudeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Registro não encontrado"));
+
+        ItemSaude item = itemSaudeRepository.findById(dto.itemSaudeId())
+                .orElseThrow(() -> new RuntimeException("Item de saúde não encontrado"));
+
+        registro.setItemSaude(item);
+        registro.setData_aplicacao(dto.dataAplicacao());
+        registro.setProxima_dose(dto.proximaDose());
+
+        return registroSaudeRepository.save(registro);
+    }
+
+    @Transactional
+    public void excluirItem(Long itemId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        ItemSaude item = itemSaudeRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item não encontrado"));
+
+        if (item.getTutor() == null) {
+            if (!isAdmin) {
+                throw new RuntimeException("Apenas administradores podem excluir itens globais.");
+            }
+        }
+        else {
+            boolean ehDono = item.getTutor().getUsuario().getEmail().equals(email);
+
+            if (!ehDono && !isAdmin) {
+                throw new RuntimeException("Você não tem permissão para excluir este item.");
+            }
+        }
+
+        itemSaudeRepository.delete(item);
     }
 
     public List<RegistroSaude> getRegistrosPorPet(UUID petUuid) {

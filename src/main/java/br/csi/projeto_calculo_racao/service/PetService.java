@@ -1,7 +1,9 @@
 package br.csi.projeto_calculo_racao.service;
 
+import br.csi.projeto_calculo_racao.model.pet.Especie;
 import br.csi.projeto_calculo_racao.model.pet.Pet;
 import br.csi.projeto_calculo_racao.model.pet.PetRepository;
+import br.csi.projeto_calculo_racao.model.pet.Porte;
 import br.csi.projeto_calculo_racao.model.tutor.Tutor;
 import br.csi.projeto_calculo_racao.model.tutor.TutorRepository;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,10 @@ public class PetService {
 
     public void cadastar(Pet pet, UUID uuidTutor) {
         Tutor tutor = tutorRepository.findByUuid ( uuidTutor ).orElseThrow( () -> new RuntimeException ("Tutor não encontrado"));
+        if (pet.getEspecie() == Especie.GATO && pet.getPorte() == null) {
+            pet.setPorte( Porte.MEDIO);
+        }
+
         pet.setTutor(tutor);
         this.petRepository.save(pet);
     }
@@ -47,6 +53,12 @@ public class PetService {
         petExistente.setData_nasc(petAtualizado.getData_nasc());
         petExistente.setSexo(petAtualizado.getSexo());
         petExistente.setTutor(novoTutor);
+
+        if (petAtualizado.getEspecie() == Especie.GATO) {
+            petExistente.setPorte(Porte.MEDIO);
+        } else {
+            petExistente.setPorte(petAtualizado.getPorte());
+        }
 
         this.petRepository.save(petExistente);
     }

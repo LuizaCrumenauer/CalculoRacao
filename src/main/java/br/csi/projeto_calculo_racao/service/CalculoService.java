@@ -16,7 +16,9 @@ import br.csi.projeto_calculo_racao.model.registroPeso.RegistroPeso;
 import br.csi.projeto_calculo_racao.model.registroPeso.RegistroPesoRepository;
 import br.csi.projeto_calculo_racao.model.tipoRacao.TipoRacao;
 import br.csi.projeto_calculo_racao.model.tipoRacao.TipoRacaoRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -58,6 +60,7 @@ public class CalculoService {
     //NEM para gatos adultos ativos (100 kcal/kg^0.67), usada como base para filhotes também
     private static final BigDecimal FATOR_NEM_ADULTO_GATO_BASE = new BigDecimal("100");
 
+    @Transactional
     public Calculo realizarCalculo ( UUID petUuid, DadosCalculoDTO dados ){
 
         Pet pet = petRepository.findByUuid ( petUuid )

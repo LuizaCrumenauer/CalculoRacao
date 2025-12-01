@@ -171,6 +171,20 @@ public class SaudeController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/registros/{id}")
+    @Transactional
+    public ResponseEntity<RegistroSaude> atualizarRegistro(@PathVariable Long id, @RequestBody @Valid RegistroSaudeDTO dto) {
+        RegistroSaude atualizado = saudeService.atualizarRegistro(id, dto);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    @DeleteMapping("/itens/{id}")
+    @Transactional
+    public ResponseEntity<Void> excluirItem(@PathVariable Long id) {
+        saudeService.excluirItem(id);
+        return ResponseEntity.noContent().build();
+    }
+
     // utilitário para pegar o tutor logado a partir do token
     private Tutor getTutorLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

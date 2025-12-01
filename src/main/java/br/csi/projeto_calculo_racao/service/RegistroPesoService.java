@@ -30,9 +30,14 @@ public class RegistroPesoService {
         RegistroPeso novoRegistro = new RegistroPeso();
         novoRegistro.setPet(pet);
         novoRegistro.setPeso(dados.peso());
-        novoRegistro.setData_registro(LocalDate.now());
+        if (dados.data() != null) {
+            novoRegistro.setData_registro(dados.data());
+        } else {
+            novoRegistro.setData_registro(LocalDate.now());
+        }
 
         registroPesoRepository.save(novoRegistro);
+
     }
 
     public List<RegistroPeso> historicoDePesoPorPet(UUID petUuid) {
